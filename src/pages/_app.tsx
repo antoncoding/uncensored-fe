@@ -15,6 +15,9 @@ import { RainbowKitProvider, lightTheme, Theme } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 // Wagmi Config
 import { wagmiConfig } from '@/lib/constants/wagmiConfig';
+import { NextUIProvider } from '@nextui-org/react';
+// Import Tailwind CSS
+import '@/styles/globals.css';
 // Merge
 import merge from 'lodash.merge';
 
@@ -36,16 +39,18 @@ const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ThemeProvider attribute="class">
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider theme={theme} showRecentTransactions={true}>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
-          </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </ThemeProvider>
+    <NextUIProvider>
+      <ThemeProvider attribute="class">
+        <WagmiProvider config={wagmiConfig}>
+          <QueryClientProvider client={queryClient}>
+            <RainbowKitProvider theme={theme} showRecentTransactions={true}>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </RainbowKitProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
+      </ThemeProvider>
+    </NextUIProvider>
   );
 }

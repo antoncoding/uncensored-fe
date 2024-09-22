@@ -1,20 +1,16 @@
-# Template for dApp built in Next.js
+# Uncensored SDK Demo
 
-Template for a decentralized application (dApp) built in [Next](https://nextjs.org).
+This project demonstrates the usage of the Uncensored SDK, a tool designed to enhance censorship resistance in Layer 2 (L2) blockchain networks.
 
-- [TypeScript](https://www.typescriptlang.org)
-- [Next 14](https://nextjs.org/blog/next-14)
-- [TanStack Query](https://tanstack.com/query/latest)
-- [Sass](https://sass-lang.com)
-- [Tailwind CSS](https://tailwindcss.com)
+## Key Concepts
 
-### Web3 Packages
+### Censorship Resistance
 
-- [ethers](https://docs.ethers.org/v5/)
-- [rainbowkit](https://www.rainbowkit.com)
-- [wagmi](https://wagmi.sh)
+Censorship resistance is crucial for blockchain networks. While Ethereum's L1 achieves this through numerous validators, L2 solutions often rely on centralized sequencers, making them potentially vulnerable to censorship.
 
----
+### Force Inclusion
+
+Force Inclusion is a mechanism provided by some L2 networks that allows users to submit transactions directly to the L1 Rollup contract. Our SDK helps users leverage these existing mechanisms, ensuring L2 transactions can't be indefinitely censored by sequencers.
 
 ## Available Scripts
 
