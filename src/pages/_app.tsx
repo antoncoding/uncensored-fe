@@ -18,6 +18,8 @@ import { wagmiConfig } from '@/lib/constants/wagmiConfig';
 import { NextUIProvider } from '@nextui-org/react';
 // Import Tailwind CSS
 import '@/styles/globals.css';
+import 'react-toastify/dist/ReactToastify.css';
+
 // Merge
 import merge from 'lodash.merge';
 

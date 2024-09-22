@@ -47,9 +47,7 @@ import {
   mainnet,
   optimism,
   optimismSepolia,
-  polygon,
   sepolia,
-  zora,
 } from 'wagmi/chains';
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_ID || '';
