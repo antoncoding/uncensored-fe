@@ -160,7 +160,7 @@ const ForceInclusionCard: React.FC = () => {
   };
 
   return (
-    <Card className="p-6 w-full max-w-md rounded-md shadow-md">
+    <Card className="p-6 w-full max-w-md shadow-md">
       <h2 className="text-2xl font-bold mb-4"> Force Inclusion </h2>
       <p className="text-sm text-gray-500 mb-6 m-2">
         Put in L2 transaction details, and we&apos;ll force it&apos;s inclusion
@@ -219,11 +219,11 @@ const ForceInclusionCard: React.FC = () => {
           </DropdownMenu>
         </Dropdown>
       </div>
-      <div className="flex justify-end space-x-4 mt-6">
+      <div className="flex justify-end space-x-4 mt-8">
         <Button onPress={sendTx} disabled={isLoading}>
           Send L2 Tx
         </Button>
-        <Button color="primary" onPress={forceSendTx} disabled={isLoading}>
+        <Button color="primary" onPress={forceSendTx} disabled={isLoading} >
           Force Send L1 Tx
         </Button>
       </div>
