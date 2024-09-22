@@ -10,7 +10,7 @@ import {
   Textarea,
 } from '@nextui-org/react';
 import { parseEther } from 'ethers';
-import { UncensoredSDK } from 'uncensored-sdk';
+import { UncensoredSDK } from '@rollup-uncensored/sdk';
 import {
   useChainId,
   useSendTransaction,
@@ -223,7 +223,7 @@ const ForceInclusionCard: React.FC = () => {
         <Button onPress={sendTx} disabled={isLoading}>
           Send L2 Tx
         </Button>
-        <Button color="primary" onPress={forceSendTx} disabled={isLoading} >
+        <Button color="primary" onPress={forceSendTx} disabled={isLoading}>
           Force Send L1 Tx
         </Button>
       </div>
