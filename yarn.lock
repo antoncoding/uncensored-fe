@@ -7856,6 +7856,11 @@ unbox-primitive@^1.0.2:
     has-symbols "^1.0.3"
     which-boxed-primitive "^1.0.2"
 
+"uncensored-sdk@file:../uncensored-sdk":
+  version "0.1.0"
+  dependencies:
+    viem "^2.0.0"
+
 uncrypto@^0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/uncrypto/-/uncrypto-0.1.3.tgz#e1288d609226f2d02d8d69ee861fa20d8348ef2b"
@@ -8000,7 +8005,7 @@ valtio@1.11.2:
     proxy-compare "2.5.1"
     use-sync-external-store "1.2.0"
 
-viem@^2.1.1:
+viem@^2.0.0, viem@^2.1.1, viem@^2.21.11:
   version "2.21.11"
   resolved "https://registry.yarnpkg.com/viem/-/viem-2.21.11.tgz#a84dd93d666f429d27b664bb466b62933a64ec06"
   integrity sha512-L7jrpc8L4ObNzdJXbB1OxjzL6rgNx5dXS+d2l/XkUuNHCXEaI8V3Wcjq606FVSAsxxZiy6bhgjFCqhqWGR9ypQ==
