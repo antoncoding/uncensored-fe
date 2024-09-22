@@ -93,7 +93,7 @@ const ForceInclusionCard: React.FC = () => {
       });
       return;
     }
-  }, [isSuccess, isLoading, txHash, isError]);
+  }, [isSuccess, isLoading, txHash, isError, pendingChainId]);
 
   const sendTx = async () => {
     try {
