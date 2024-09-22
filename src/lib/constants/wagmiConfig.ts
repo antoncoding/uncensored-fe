@@ -42,9 +42,11 @@ import {
 import { http } from 'wagmi';
 import {
   arbitrum,
+  arbitrumSepolia,
   base,
   mainnet,
   optimism,
+  optimismSepolia,
   polygon,
   sepolia,
   zora,
@@ -108,20 +110,22 @@ export const wagmiConfig = getDefaultConfig({
   wallets: wallets,
   chains: [
     mainnet,
-    polygon,
     optimism,
     arbitrum,
     base,
-    zora,
+    optimismSepolia,
+    arbitrumSepolia,
+    sepolia,
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [sepolia] : []),
   ],
   transports: {
     [mainnet.id]: http(),
-    [polygon.id]: http(),
     [optimism.id]: http(),
     [arbitrum.id]: http(),
     [base.id]: http(),
-    [zora.id]: http(),
+    [optimismSepolia.id]: http(),
+    [arbitrumSepolia.id]: http(),
+    [sepolia.id]: http(),
   },
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
