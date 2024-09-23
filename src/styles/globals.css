@@ -30,3 +30,12 @@ body {
 .bg-card {
   background: var(--card-background-color);
 }
+
+.underline-on-hover {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.underline-on-hover:hover {
+  text-decoration: underline;
+}

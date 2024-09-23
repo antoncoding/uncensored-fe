@@ -85,21 +85,35 @@ const ForceInclusionCard: React.FC = () => {
   });
 
   /**
-   * When L1 transaciton is successfully sent to the network
+   * When L1 transaction is successfully sent to the network
    */
   const onL1Success = useCallback(async (hash: `0x${string}`) => {
     setL1TxHash(hash);
   }, []);
+
+  const formatTxHash = (hash: `0x${string}`) => {
+    return `${hash.slice(0, 10)}...${hash.slice(-8)}`;
+  };
 
   // Handle L1 transaction status
   useEffect(() => {
     if (!l1TxHash) return;
     if (isL1Success) {
       toast.update('l1-transaction-confirmation', {
-        render: 'L1 transaction confirmed',
+        render: (
+          <div className="p-2">
+            <div>L1 transaction confirmed! 🎉</div>
+            <div className="text-xs font-mono underline-on-hover py-2">
+              {formatTxHash(l1TxHash)}
+            </div>
+          </div>
+        ),
         type: 'success',
         isLoading: false,
         autoClose: 5000,
+        onClick: () => {
+          window.open(chainIdToExplorer(l1ChainId, l1TxHash), '_blank');
+        },
       });
       const l2Hashes = uncensored.getL2TxHashes(l1Receipt, l2ChainId);
       if (l2Hashes.length > 0) {
@@ -107,18 +121,36 @@ const ForceInclusionCard: React.FC = () => {
         setL2TxHash(l2Hash);
       }
     } else if (isL1Loading) {
-      toast.loading('L1 transaction sent, waiting for confirmation...', {
-        toastId: 'l1-transaction-confirmation',
-        onClick: () => {
-          window.open(chainIdToExplorer(l1ChainId, l1TxHash), '_blank');
-        },
-      });
+      toast.loading(
+        <div className="p-2">
+          <div>L1 transaction sent, waiting for confirmation...</div>
+          <div className="text-xs font-mono underline-on-hover py-2">
+            {formatTxHash(l1TxHash)}
+          </div>
+        </div>,
+        {
+          toastId: 'l1-transaction-confirmation',
+          onClick: () => {
+            window.open(chainIdToExplorer(l1ChainId, l1TxHash), '_blank');
+          },
+        }
+      );
     } else if (isL1Error) {
       toast.update('l1-transaction-confirmation', {
-        render: 'L1 transaction failed',
+        render: (
+          <div className="p-2">
+            <div>L1 transaction failed! ❌</div>
+            <div className="text-xs font-mono underline-on-hover py-2">
+              {formatTxHash(l1TxHash)}
+            </div>
+          </div>
+        ),
         type: 'error',
         isLoading: false,
         autoClose: 5000,
+        onClick: () => {
+          window.open(chainIdToExplorer(l1ChainId, l1TxHash), '_blank');
+        },
       });
     }
   }, [
@@ -136,24 +168,53 @@ const ForceInclusionCard: React.FC = () => {
     if (!l2TxHash) return;
     if (isL2Success) {
       toast.update('l2-transaction-confirmation', {
-        render: 'L2 transaction confirmed',
+        render: (
+          <div className="p-2">
+            <div>L2 transaction confirmed! 🎉</div>
+            <div className="text-xs font-mono underline-on-hover py-2">
+              {formatTxHash(l2TxHash)}
+            </div>
+            <div>Transaction force included!</div>
+          </div>
+        ),
         type: 'success',
         isLoading: false,
         autoClose: 5000,
-      });
-    } else if (isL2Loading) {
-      toast.loading('Waiting for transaction on L2...', {
-        toastId: 'l2-transaction-confirmation',
         onClick: () => {
           window.open(chainIdToExplorer(l2ChainId, l2TxHash), '_blank');
         },
       });
+    } else if (isL2Loading) {
+      toast.loading(
+        <div className="p-2">
+          <div>Waiting for transaction on L2...</div>
+          <div className="text-xs font-mono underline-on-hover py-2">
+            {formatTxHash(l2TxHash)}
+          </div>
+        </div>,
+        {
+          toastId: 'l2-transaction-confirmation',
+          onClick: () => {
+            window.open(chainIdToExplorer(l2ChainId, l2TxHash), '_blank');
+          },
+        }
+      );
     } else if (isL2Error) {
       toast.update('l2-transaction-confirmation', {
-        render: 'L2 transaction failed',
+        render: (
+          <div className="p-2">
+            <div>L2 transaction failed! ❌</div>
+            <div className="text-xs font-mono underline-on-hover py-2">
+              {formatTxHash(l2TxHash)}
+            </div>
+          </div>
+        ),
         type: 'error',
         isLoading: false,
         autoClose: 5000,
+        onClick: () => {
+          window.open(chainIdToExplorer(l2ChainId, l2TxHash), '_blank');
+        },
       });
     }
   }, [isL2Success, isL2Loading, l2TxHash, isL2Error, l2ChainId]);
@@ -197,8 +258,8 @@ const ForceInclusionCard: React.FC = () => {
     <Card className="p-8 w-full max-w-md shadow-md bg-card">
       <h2 className="text-2xl font-bold mb-4"> Force Inclusion </h2>
       <p className="text-sm text-gray-500 mb-6">
-        Put in L2 transaction details, and we&apos;ll force it&apos;s inclusion
-        on L1 🏰.
+        Enter L2 transaction details, and we&apos;ll force its inclusion on L1
+        🏰.
       </p>
       <div className="space-y-4">
         <Input
