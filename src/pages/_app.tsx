@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { AppProps } from 'next/app';
 // Importing Next Themes
 import { ThemeProvider } from 'next-themes';
@@ -25,9 +25,9 @@ import merge from 'lodash.merge';
 
 const theme = merge(lightTheme(), {
   colors: {
-    accentColor: '#FF801F',
+    accentColor: '#0ea5e9', // Updated to match primary color in tailwind.config.js
     accentColorForeground: '#fff',
-    actionButtonSecondaryBackground: '#DADDD8',
+    actionButtonSecondaryBackground: '#93c5fd', // Updated to match secondary color in tailwind.config.js
     connectButtonBackground: '#fff',
     connectButtonBackgroundError: '#fff',
     connectButtonInnerBackground: '#fff',
@@ -40,9 +40,16 @@ const theme = merge(lightTheme(), {
 const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+  }, []);
+
   return (
     <NextUIProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
         <WagmiProvider config={wagmiConfig}>
           <QueryClientProvider client={queryClient}>
             <RainbowKitProvider theme={theme} showRecentTransactions={true}>

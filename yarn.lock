@@ -3102,13 +3102,12 @@
     "@react-types/overlays" "^3.8.9"
     "@react-types/shared" "^3.24.1"
 
-"@rollup-uncensored/sdk@0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@rollup-uncensored/sdk/-/sdk-0.1.3.tgz#c669e08f07bb04e981a93beda8b350aa8f8ea185"
-  integrity sha512-E6F3Pkv4js/SIylhd03TWA6bCsJggSIKziSrZ9gU3Gw1lFwRpB67b/+PlS8TIduitHVu8qEPg51a5kVDMupTNA==
+"@rollup-uncensored/sdk@0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@rollup-uncensored/sdk/-/sdk-0.1.4.tgz#56749f7f8004f42c92e5aa8b25f895ff7af570a6"
+  integrity sha512-xgC8w+5KnmAdOdX74LmgklM7GKdmuquHd/TBnSPq7yCbkMcq/IWv4em7lqCh25boylR1Ad1twkZw5EkZjKi7sA==
   dependencies:
     viem "^2.7.9"
-    webauthn-p256 "0.0.10"
 
 "@rtsao/scc@^1.1.0":
   version "1.1.0"
@@ -8038,14 +8037,6 @@ wagmi@^2.10.2:
     "@wagmi/connectors" "5.1.12"
     "@wagmi/core" "2.13.6"
     use-sync-external-store "1.2.0"
-
-webauthn-p256@0.0.10:
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/webauthn-p256/-/webauthn-p256-0.0.10.tgz#877e75abe8348d3e14485932968edf3325fd2fdd"
-  integrity sha512-EeYD+gmIT80YkSIDb2iWq0lq2zbHo1CxHlQTeJ+KkCILWpVy3zASH3ByD4bopzfk0uCwXxLqKGLqp2W4O28VFA==
-  dependencies:
-    "@noble/curves" "^1.4.0"
-    "@noble/hashes" "^1.4.0"
 
 webauthn-p256@0.0.5:
   version "0.0.5"
