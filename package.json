@@ -14,7 +14,7 @@
   "dependencies": {
     "@nextui-org/react": "^2.4.8",
     "@rainbow-me/rainbowkit": "^2.1.2",
-    "@rollup-uncensored/sdk": "0.1.4",
+    "@rollup-uncensored/sdk": "0.1.5",
     "@tanstack/react-query": "^5.45.1",
     "@tanstack/react-query-devtools": "^5.45.1",
     "eslint-config-next": "^14.2.4",
