@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <>
       <Meta />
-      <div className="w-full min-h-screen flex justify-center items-center bg-gray-100 dark:bg-gray-900">
+      <div className="w-full flex justify-center items-center">
         <ForceInclusionCard />
       </div>
     </>

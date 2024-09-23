@@ -6,9 +6,11 @@ import { CiSettings } from 'react-icons/ci';
 
 const Navbar = () => {
   return (
-    <nav className="flex justify-between items-center px-12 py-4">
+    <nav className="flex justify-between items-center px-12 py-4 bg-card">
       <div className="flex items-center">
-        <Image src="/img/logo.png" alt="Logo" width={50} height={50} />
+        <Link href="/">
+          <Image src="/img/logo.png" alt="Logo" width={50} height={50} />
+        </Link>
       </div>
       <div className="ml-auto pr-4 flex items-center">
         <ConnectButton />

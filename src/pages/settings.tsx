@@ -20,9 +20,9 @@ const Settings = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-full">
-      <Card className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-lg">
-        <h1 className="text-2xl mb-4 text-center">Settings</h1>
+    <div className="flex justify-center items-center w-full">
+      <Card className="bg-card p-8 shadow-md w-full max-w-lg">
+        <h2 className="text-2xl font-bold mb-4"> Settings </h2>
         <div className="mb-6">
           <h2 className="text-lg mb-2">Theme</h2>
           <Switch
@@ -35,6 +35,11 @@ const Settings = () => {
           </Switch>
         </div>
         {/* Future settings sections can be added here */}
+
+        <div className="mb-6">
+          <h2 className="text-lg mb-2">RPC Providers</h2>
+          <p className="text-sm text-gray-500 mb-2">Coming soon...</p>
+        </div>
       </Card>
     </div>
   );

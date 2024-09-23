@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-02 sm:flex sm:items-center sm:justify-between p-4 sm:p-6 xl:p-8 dark:bg-09 text-gray-500 text-sm">
+    <footer className="sm:flex sm:items-center sm:justify-between p-4 sm:p-6 xl:p-8  text-gray-500 text-sm bg-card">
       <div className="mb-4 sm:mb-0">Shoutout to Matteo Celani for template</div>
       <div>
         <Link
