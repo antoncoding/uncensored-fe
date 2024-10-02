@@ -258,7 +258,7 @@ const ForceInclusionCard: React.FC = () => {
     <Card className="p-8 w-full max-w-md shadow-md bg-card">
       <h2 className="text-2xl font-bold mb-4"> Force Inclusion </h2>
       <p className="text-sm text-gray-500 mb-6">
-        Enter L2 transaction details, and we&apos;ll force its inclusion on L1
+        Enter L2 transaction details, and we&apos;ll force its inclusion from L1
         🏰.
       </p>
       <div className="space-y-4">
@@ -294,6 +294,9 @@ const ForceInclusionCard: React.FC = () => {
           value={gasLimit}
           onChange={(e) => setGasLimit(e.target.value)}
         />
+        <p className="text-sm text-black-500 mb-6">
+          Which L2 chain do you want to include this transaction in?{' '}
+        </p>
         <Dropdown>
           <DropdownTrigger>
             <Button variant="bordered">
@@ -316,7 +319,7 @@ const ForceInclusionCard: React.FC = () => {
       </div>
       <div className="flex justify-end space-x-4 mt-8">
         <Button color="primary" onPress={forceSendTx} disabled={isL1Loading}>
-          Force Send L1 Tx
+          Force Include
         </Button>
       </div>
     </Card>
