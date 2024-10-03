@@ -37,9 +37,9 @@ const ForceInclusionCard: React.FC = () => {
   const l1ChainId = sepolia.id;
 
   const [value, setValue] = useState<string>('');
-  const [data, setData] = useState<`0x${string}`>('0x');
-  const [to, setTo] = useState<Address>('0x');
-  const [gasLimit, setGasLimit] = useState<string>('150000');
+  const [data, setData] = useState<string>('');
+  const [to, setTo] = useState<string>('');
+  const [gasLimit, setGasLimit] = useState<string>('');
 
   // L1 transaction states
   const [l1TxHash, setL1TxHash] = useState<`0x${string}` | undefined>();
@@ -264,12 +264,14 @@ const ForceInclusionCard: React.FC = () => {
       <div className="space-y-4">
         <Input
           label="To"
-          placeholder="Enter recipient address"
+          placeholder="0x"
           type="text"
           value={to}
           onChange={(e) => setTo(e.target.value as Address)}
-          errorMessage={!to.startsWith('0x') ? 'Invalid address' : undefined}
-          isInvalid={!to.startsWith('0x')}
+          errorMessage={
+            to && !to.startsWith('0x') ? 'Invalid address' : undefined
+          }
+          isInvalid={!!(to && !to.startsWith('0x'))}
         />
         <Input
           label="Value (ETH)"
@@ -280,16 +282,18 @@ const ForceInclusionCard: React.FC = () => {
         />
         <Textarea
           label="Data"
-          placeholder="Enter data"
+          placeholder="0x"
           type="text"
           value={data}
           onChange={(e) => setData(e.target.value as `0x${string}`)}
-          errorMessage={!data.startsWith('0x') ? 'Invalid data' : undefined}
-          isInvalid={!data.startsWith('0x')}
+          errorMessage={
+            data && !data.startsWith('0x') ? 'Invalid data' : undefined
+          }
+          isInvalid={!!(data && !data.startsWith('0x'))}
         />
         <Input
           label="Gas Limit"
-          placeholder="Enter gas limit"
+          placeholder="150000"
           type="number"
           value={gasLimit}
           onChange={(e) => setGasLimit(e.target.value)}
