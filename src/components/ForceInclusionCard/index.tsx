@@ -8,6 +8,7 @@ import {
   DropdownMenu,
   DropdownItem,
   Textarea,
+  Switch,
 } from '@nextui-org/react';
 import { parseEther } from 'ethers';
 import { UncensoredSDK } from '@rollup-uncensored/sdk';
@@ -21,6 +22,7 @@ import { Address } from 'viem';
 import { optimismSepolia, sepolia } from 'viem/chains';
 import { toast } from 'react-toastify';
 import { chainIdToExplorer } from '@/utils/chains';
+import SmartModeInput from '../SmartModeInput';
 
 const uncensored = new UncensoredSDK();
 
@@ -40,6 +42,7 @@ const ForceInclusionCard: React.FC = () => {
   const [data, setData] = useState<string>('');
   const [to, setTo] = useState<string>('');
   const [gasLimit, setGasLimit] = useState<string>('');
+  const [isSmartMode, setIsSmartMode] = useState<boolean>(false);
 
   // L1 transaction states
   const [l1TxHash, setL1TxHash] = useState<`0x${string}` | undefined>();
@@ -254,6 +257,10 @@ const ForceInclusionCard: React.FC = () => {
     }
   };
 
+  const handleDataGenerated = (generatedData: `0x${string}`) => {
+    setData(generatedData);
+  };
+
   return (
     <Card className="p-8 w-full max-w-md shadow-md bg-card">
       <h2 className="text-2xl font-bold mb-4"> Force Inclusion </h2>
@@ -280,17 +287,33 @@ const ForceInclusionCard: React.FC = () => {
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
-        <Textarea
-          label="Data"
-          placeholder="0x"
-          type="text"
-          value={data}
-          onChange={(e) => setData(e.target.value as `0x${string}`)}
-          errorMessage={
-            data && !data.startsWith('0x') ? 'Invalid data' : undefined
-          }
-          isInvalid={!!(data && !data.startsWith('0x'))}
-        />
+        <div className="flex justify-end items-center">
+          <span className="text-sm text-gray-500 mr-2">Smart Mode:</span>
+          <Switch
+            checked={isSmartMode}
+            onChange={() => setIsSmartMode(!isSmartMode)}
+            size="sm"
+          />
+        </div>
+        {isSmartMode ? (
+          <SmartModeInput
+            to={to as Address}
+            selectedChain={selectedChain}
+            onDataGenerated={handleDataGenerated}
+          />
+        ) : (
+          <Textarea
+            label="Data"
+            placeholder="0x"
+            type="text"
+            value={data}
+            onChange={(e) => setData(e.target.value as `0x${string}`)}
+            errorMessage={
+              data && !data.startsWith('0x') ? 'Invalid data' : undefined
+            }
+            isInvalid={!!(data && !data.startsWith('0x'))}
+          />
+        )}
         <Input
           label="Gas Limit"
           placeholder="150000"
