@@ -1,25 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Input,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  DropdownSection,
   Button,
+  Tooltip,
 } from '@nextui-org/react';
-import { Address, encodeFunctionData } from 'viem';
+import { Address, encodeFunctionData, isAddress } from 'viem';
 import { toast } from 'react-toastify';
 
 interface SmartModeInputProps {
   to: Address;
   selectedChain: string;
   onDataGenerated: (data: `0x${string}`) => void;
+  proxyImplementationAddress: string;
+  setProxyImplementationAddress: (address: string) => void;
 }
 
 const SmartModeInput: React.FC<SmartModeInputProps> = ({
   to,
   selectedChain,
   onDataGenerated,
+  proxyImplementationAddress,
+  setProxyImplementationAddress,
 }) => {
   const [abi, setAbi] = useState<any[] | null>(null);
   const [selectedFunction, setSelectedFunction] = useState<string | null>(null);
@@ -27,12 +33,15 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
     [key: string]: string;
   }>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [proxyImplementationAddress, setProxyImplementationAddress] =
-    useState<`0x${string}` | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (to) {
-      fetchABI(proxyImplementationAddress ? proxyImplementationAddress : to);
+    if (to && isAddress(to)) {
+      fetchABI(
+        proxyImplementationAddress && isAddress(proxyImplementationAddress)
+          ? (proxyImplementationAddress as Address)
+          : to
+      );
     } else {
       setAbi(null);
       setSelectedFunction(null);
@@ -50,7 +59,7 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
     const apiUrl =
       selectedChain === 'optimism-sepolia'
         ? 'https://api-sepolia-optimistic.etherscan.io/api'
-        : 'https://api.arbiscan.io/api';
+        : 'https://api-sepolia.arbiscan.io/api';
 
     try {
       const response = await fetch(
@@ -87,7 +96,7 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
 
     try {
       const data = encodeFunctionData({
-        abi: abi,
+        abi: [functionAbi],
         functionName: selectedFunction,
         args: functionAbi.inputs.map(
           (input: any) => functionInputs[input.name]
@@ -100,76 +109,88 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
     }
   };
 
-  if (!to) {
-    return (
-      <p className="text-sm text-gray-500">
-        Enter a target address to auto-fetch ABI
-      </p>
-    );
-  }
-
-  if (isLoading) {
-    return <p className="text-sm text-gray-500">Loading ABI...</p>;
-  }
-
-  if (!abi) {
-    return null;
-  }
-
-  const writableFunctions = abi.filter(
-    (item: any) =>
-      item.type === 'function' && !item.stateMutability.includes('view')
-  );
+  const writableFunctions =
+    abi?.filter(
+      (item: any) =>
+        item.type === 'function' && !item.stateMutability.includes('view')
+    ) || [];
 
   return (
     <div className="space-y-4">
-      <Input
-        label="Proxy Implementation Address (optional)"
-        placeholder="0x"
-        type="text"
-        value={proxyImplementationAddress || ''}
-        onValueChange={(value) => setProxyImplementationAddress(value as `0x${string}`)}
-        size="sm"
-      />
+      {isLoading && <p className="text-sm text-gray-500">Loading ABI...</p>}
 
-      <Dropdown>
-        <DropdownTrigger>
-          <Button variant="bordered" size="sm">
-            {selectedFunction || 'Select function'}
-          </Button>
-        </DropdownTrigger>
-        <DropdownMenu aria-label="Select function">
-          <DropdownItem key="header" className="opacity-50" isReadOnly>
-            Function to call
-          </DropdownItem>
-          {writableFunctions.map((func: any) => (
-            <DropdownItem
-              key={func.name}
-              onClick={() => handleFunctionSelect(func.name)}
+      <Input label="To Address" value={to} isReadOnly size="sm" isDisabled />
+      <Tooltip content="Use this if the contract is a proxy. Enter the implementation contract address.">
+        <Input
+          label="Proxy Implementation Address (optional)"
+          placeholder="0x"
+          type="text"
+          value={proxyImplementationAddress}
+          onChange={(e) => setProxyImplementationAddress(e.target.value)}
+          size="sm"
+        />
+      </Tooltip>
+
+      {abi && (
+        <div className="flex flex-col gap-2">
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                variant="bordered"
+                size="sm"
+                className="text-xs max-w-fit"
+              >
+                {selectedFunction || 'Select function'}
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu
+              aria-label="Select function"
+              className="max-h-[300px] overflow-y-auto"
+              itemClasses={{
+                base: 'py-2',
+              }}
+              ref={dropdownRef}
             >
-              {func.name}
-            </DropdownItem>
-          ))}
-        </DropdownMenu>
-      </Dropdown>
+              <DropdownSection title="Function to call">
+                {writableFunctions.map((func: any, index: number) => (
+                  <DropdownItem
+                    key={`${func.name}-${index}`}
+                    onClick={() => handleFunctionSelect(func.name)}
+                  >
+                    {func.name}
+                  </DropdownItem>
+                ))}
+              </DropdownSection>
+            </DropdownMenu>
+          </Dropdown>
 
-      {selectedFunction &&
-        abi
-          .find((item: any) => item.name === selectedFunction)
-          .inputs.map((input: any) => (
-            <Input
-              key={input.name}
-              label={input.name}
-              placeholder={`Enter ${input.type}`}
-              value={functionInputs[input.name] || ''}
-              onChange={(e) => handleInputChange(input.name, e.target.value)}
-              size="sm"
-            />
-          ))}
+          {selectedFunction &&
+            abi
+              .find((item: any) => item.name === selectedFunction)
+              ?.inputs.map((input: any, index: number) => (
+                <Input
+                  key={`${input.name}-${index}`}
+                  label={input.name}
+                  placeholder={`Enter ${input.type}`}
+                  value={functionInputs[input.name] || ''}
+                  onChange={(e) =>
+                    handleInputChange(input.name, e.target.value)
+                  }
+                  size="sm"
+                />
+              ))}
 
-      <Button color="primary" onPress={generateData} size="sm">
-        Generate Data
-      </Button>
+          <Button
+            color="primary"
+            onPress={generateData}
+            size="sm"
+            className="mt-2 max-w-fit"
+            isDisabled={!selectedFunction}
+          >
+            Generate Data
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

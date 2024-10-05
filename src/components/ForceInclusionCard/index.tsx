@@ -8,7 +8,13 @@ import {
   DropdownMenu,
   DropdownItem,
   Textarea,
-  Switch,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Tooltip,
 } from '@nextui-org/react';
 import { parseEther } from 'ethers';
 import { UncensoredSDK } from '@rollup-uncensored/sdk';
@@ -18,7 +24,7 @@ import {
   useSwitchChain,
   useWaitForTransactionReceipt,
 } from 'wagmi';
-import { Address } from 'viem';
+import { Address, isAddress } from 'viem';
 import { optimismSepolia, sepolia } from 'viem/chains';
 import { toast } from 'react-toastify';
 import { chainIdToExplorer } from '@/utils/chains';
@@ -42,7 +48,8 @@ const ForceInclusionCard: React.FC = () => {
   const [data, setData] = useState<string>('');
   const [to, setTo] = useState<string>('');
   const [gasLimit, setGasLimit] = useState<string>('');
-  const [isSmartMode, setIsSmartMode] = useState<boolean>(false);
+  const [proxyImplementationAddress, setProxyImplementationAddress] =
+    useState<string>('');
 
   // L1 transaction states
   const [l1TxHash, setL1TxHash] = useState<`0x${string}` | undefined>();
@@ -53,6 +60,7 @@ const ForceInclusionCard: React.FC = () => {
   const { sendTransaction } = useSendTransaction();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   // fetch
   const l2ChainId = useMemo(
@@ -228,6 +236,12 @@ const ForceInclusionCard: React.FC = () => {
       toast.info('Switched to Sepolia, click again to send');
       return;
     }
+
+    if (!gasLimit) {
+      toast.error('Please enter a gas limit');
+      return;
+    }
+
     try {
       const valueInWei = value ? parseEther(value) : BigInt(0);
       const l1Tx = uncensored.transformTransaction({
@@ -259,16 +273,51 @@ const ForceInclusionCard: React.FC = () => {
 
   const handleDataGenerated = (generatedData: `0x${string}`) => {
     setData(generatedData);
+    onClose();
+  };
+
+  const handleComposeDataClick = () => {
+    if (!to || !isAddress(to)) {
+      toast.error('Please enter a valid "To" address before composing data.');
+    } else {
+      onOpen();
+    }
   };
 
   return (
     <Card className="p-8 w-full max-w-md shadow-md bg-card">
-      <h2 className="text-2xl font-bold mb-4"> Force Inclusion </h2>
+      <h2 className="text-2xl font-bold mb-4">Force Inclusion</h2>
       <p className="text-sm text-gray-500 mb-6">
         Enter L2 transaction details, and we&apos;ll force its inclusion from L1
         🏰.
       </p>
       <div className="space-y-4">
+        <div>
+          <h3 className="text-sm font-semibold mb-1">Target L2 Chain</h3>
+          <p className="text-xs text-gray-500 mb-2">
+            Select the L2 chain where you want to include this transaction.
+          </p>
+          <Dropdown>
+            <DropdownTrigger>
+              <Button variant="bordered" size="sm">
+                {selectedChain
+                  ? chains.find((chain) => chain.key === selectedChain)?.name
+                  : 'Select chain'}
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Select chain">
+              {chains.map((chain) => (
+                <DropdownItem
+                  key={chain.key}
+                  onClick={() => setSelectedChain(chain.key)}
+                >
+                  {chain.name}
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          </Dropdown>
+        </div>
+
         <Input
           label="To"
           placeholder="0x"
@@ -287,21 +336,8 @@ const ForceInclusionCard: React.FC = () => {
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
-        <div className="flex justify-end items-center">
-          <span className="text-sm text-gray-500 mr-2">Smart Mode:</span>
-          <Switch
-            checked={isSmartMode}
-            onChange={() => setIsSmartMode(!isSmartMode)}
-            size="sm"
-          />
-        </div>
-        {isSmartMode ? (
-          <SmartModeInput
-            to={to as Address}
-            selectedChain={selectedChain}
-            onDataGenerated={handleDataGenerated}
-          />
-        ) : (
+
+        <div>
           <Textarea
             label="Data"
             placeholder="0x"
@@ -313,7 +349,18 @@ const ForceInclusionCard: React.FC = () => {
             }
             isInvalid={!!(data && !data.startsWith('0x'))}
           />
-        )}
+          <div className="mt-1">
+            <Tooltip content="Compose transaction data using contract ABI">
+              <span
+                className="text-xs text-gray-500 cursor-pointer underline ml-2"
+                onClick={handleComposeDataClick}
+              >
+                Compose data with ABI
+              </span>
+            </Tooltip>
+          </div>
+        </div>
+
         <Input
           label="Gas Limit"
           placeholder="150000"
@@ -321,34 +368,31 @@ const ForceInclusionCard: React.FC = () => {
           value={gasLimit}
           onChange={(e) => setGasLimit(e.target.value)}
         />
-        <p className="text-sm text-black-500 mb-6">
-          Which L2 chain do you want to include this transaction in?{' '}
-        </p>
-        <Dropdown>
-          <DropdownTrigger>
-            <Button variant="bordered">
-              {selectedChain
-                ? chains.find((chain) => chain.key === selectedChain)?.name
-                : 'Select chain'}
-            </Button>
-          </DropdownTrigger>
-          <DropdownMenu aria-label="Select chain">
-            {chains.map((chain) => (
-              <DropdownItem
-                key={chain.key}
-                onClick={() => setSelectedChain(chain.key)}
-              >
-                {chain.name}
-              </DropdownItem>
-            ))}
-          </DropdownMenu>
-        </Dropdown>
       </div>
       <div className="flex justify-end space-x-4 mt-8">
         <Button color="primary" onPress={forceSendTx} disabled={isL1Loading}>
           Force Include
         </Button>
       </div>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalContent>
+          <ModalHeader>Compose Transaction Data</ModalHeader>
+          <ModalBody>
+            <SmartModeInput
+              to={to as Address}
+              selectedChain={selectedChain}
+              onDataGenerated={handleDataGenerated}
+              proxyImplementationAddress={proxyImplementationAddress}
+              setProxyImplementationAddress={setProxyImplementationAddress}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" variant="light" onPress={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Card>
   );
 };
