@@ -7,25 +7,25 @@ import {
   DropdownItem,
   DropdownSection,
   Button,
-  Tooltip,
+  Link,
 } from '@nextui-org/react';
 import { Address, encodeFunctionData, isAddress } from 'viem';
 import { toast } from 'react-toastify';
+import { chainIdToAddressExplorer } from '@/utils/chains';
+import { arbitrumSepolia, optimismSepolia } from 'viem/chains';
+import { HiCheck } from 'react-icons/hi';
+import { RxCrossCircled } from 'react-icons/rx';
 
 interface SmartModeInputProps {
   to: Address;
   selectedChain: string;
   onDataGenerated: (data: `0x${string}`) => void;
-  proxyImplementationAddress: string;
-  setProxyImplementationAddress: (address: string) => void;
 }
 
 const SmartModeInput: React.FC<SmartModeInputProps> = ({
   to,
   selectedChain,
   onDataGenerated,
-  proxyImplementationAddress,
-  setProxyImplementationAddress,
 }) => {
   const [abi, setAbi] = useState<any[] | null>(null);
   const [selectedFunction, setSelectedFunction] = useState<string | null>(null);
@@ -33,33 +33,67 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
     [key: string]: string;
   }>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [proxyImplementationAddress, setProxyImplementationAddress] =
+    useState<string>('');
+  const [isEditingImplementation, setIsEditingImplementation] =
+    useState<boolean>(false);
+  const [manualImplementationAddress, setManualImplementationAddress] =
+    useState<string>('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isProxyDetected, setIsProxyDetected] = useState<boolean>(false);
 
   useEffect(() => {
     if (to && isAddress(to)) {
-      fetchABI(
-        proxyImplementationAddress && isAddress(proxyImplementationAddress)
-          ? (proxyImplementationAddress as Address)
-          : to
-      );
+      checkIfProxy(to);
     } else {
       setAbi(null);
       setSelectedFunction(null);
       setFunctionInputs({});
+      setProxyImplementationAddress('');
     }
-  }, [to, selectedChain, proxyImplementationAddress]);
+  }, [to, selectedChain]);
+
+  const getApiKey = () => {
+    return selectedChain === 'optimism-sepolia'
+      ? process.env.NEXT_PUBLIC_OPTIMISM_ETHERSCAN_API_KEY
+      : process.env.NEXT_PUBLIC_ARBITRUM_ETHERSCAN_API_KEY;
+  };
+
+  const getApiUrl = () => {
+    return selectedChain === 'optimism-sepolia'
+      ? 'https://api-sepolia-optimistic.etherscan.io/api'
+      : 'https://api-sepolia.arbiscan.io/api';
+  };
+
+  const checkIfProxy = async (address: Address) => {
+    setIsLoading(true);
+    const apiKey = getApiKey();
+    const apiUrl = getApiUrl();
+
+    try {
+      const response = await fetch(
+        `${apiUrl}?module=contract&action=getsourcecode&address=${address}&apikey=${apiKey}`
+      );
+      const data = await response.json();
+      if (data.status === '1' && data.result[0].Implementation) {
+        setProxyImplementationAddress(data.result[0].Implementation);
+        setIsProxyDetected(true);
+        fetchABI(data.result[0].Implementation as Address);
+      } else {
+        setProxyImplementationAddress('');
+        setIsProxyDetected(false);
+        fetchABI(address);
+      }
+    } catch (error) {
+      console.error('Error checking if proxy:', error);
+      toast.error('Error checking contract type');
+      setIsLoading(false);
+    }
+  };
 
   const fetchABI = async (address: Address) => {
-    setIsLoading(true);
-    const apiKey =
-      selectedChain === 'optimism-sepolia'
-        ? process.env.NEXT_PUBLIC_OPTIMISM_ETHERSCAN_API_KEY
-        : process.env.NEXT_PUBLIC_ARBITRUM_ETHERSCAN_API_KEY;
-
-    const apiUrl =
-      selectedChain === 'optimism-sepolia'
-        ? 'https://api-sepolia-optimistic.etherscan.io/api'
-        : 'https://api-sepolia.arbiscan.io/api';
+    const apiKey = getApiKey();
+    const apiUrl = getApiUrl();
 
     try {
       const response = await fetch(
@@ -116,21 +150,94 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
         !['view', 'pure'].includes(item.stateMutability)
     ) || [];
 
+  const handleChangeImplementation = () => {
+    setIsEditingImplementation(true);
+    setManualImplementationAddress(proxyImplementationAddress);
+  };
+
+  const handleSaveImplementation = () => {
+    if (isAddress(manualImplementationAddress)) {
+      setProxyImplementationAddress(manualImplementationAddress);
+      fetchABI(manualImplementationAddress as Address);
+      setIsEditingImplementation(false);
+      setIsProxyDetected(true);
+    } else {
+      toast.error('Invalid address');
+    }
+  };
+
+  const getExplorerLink = (address: string) => {
+    const chainId =
+      selectedChain === 'optimism-sepolia'
+        ? optimismSepolia.id
+        : arbitrumSepolia.id;
+    return chainIdToAddressExplorer(chainId, address);
+  };
+
   return (
     <div className="space-y-4">
-      {isLoading && <p className="text-sm text-gray-500">Loading ABI...</p>}
+      {isLoading && (
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Loading contract information...
+        </p>
+      )}
 
       <Input label="To Address" value={to} isReadOnly size="sm" isDisabled />
-      <Tooltip content="Use this if the contract is a proxy. Enter the implementation contract address.">
-        <Input
-          label="Proxy Implementation Address (optional)"
-          placeholder="0x"
-          type="text"
-          value={proxyImplementationAddress}
-          onChange={(e) => setProxyImplementationAddress(e.target.value)}
-          size="sm"
-        />
-      </Tooltip>
+
+      {!isEditingImplementation && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-dashed border-blue-200 dark:border-blue-700 rounded-lg p-3 flex items-center justify-between">
+          <div>
+            {isProxyDetected ? (
+              <>
+                <span className="text-xs text-blue-700 dark:text-blue-300">
+                  Proxy detected, using ABI from{' '}
+                </span>
+                <Link
+                  href={getExplorerLink(proxyImplementationAddress)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  {proxyImplementationAddress.slice(0, 6)}...
+                  {proxyImplementationAddress.slice(-4)}
+                </Link>
+              </>
+            ) : (
+              <span className="text-sm text-blue-700 dark:text-blue-300">
+                No proxy detected
+              </span>
+            )}
+          </div>
+          <button
+            onClick={handleChangeImplementation}
+            className="text-xs text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
+          >
+            {isProxyDetected ? 'Change' : 'Add implementation'}
+          </button>
+        </div>
+      )}
+
+      {isEditingImplementation && (
+        <div className="flex items-center space-x-2">
+          <Input
+            label="Implementation Address"
+            value={manualImplementationAddress}
+            onChange={(e) => setManualImplementationAddress(e.target.value)}
+            size="sm"
+          />
+          <Button size="md" isIconOnly onClick={handleSaveImplementation}>
+            <HiCheck size={20} />
+          </Button>
+          <Button
+            size="md"
+            isIconOnly
+            onClick={() => setIsEditingImplementation(false)}
+          >
+            {' '}
+            <RxCrossCircled size={20} />{' '}
+          </Button>
+        </div>
+      )}
 
       {abi && (
         <div className="flex flex-col gap-2">

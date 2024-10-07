@@ -48,8 +48,6 @@ const ForceInclusionCard: React.FC = () => {
   const [data, setData] = useState<string>('');
   const [to, setTo] = useState<string>('');
   const [gasLimit, setGasLimit] = useState<string>('');
-  const [proxyImplementationAddress, setProxyImplementationAddress] =
-    useState<string>('');
 
   // L1 transaction states
   const [l1TxHash, setL1TxHash] = useState<`0x${string}` | undefined>();
@@ -382,8 +380,6 @@ const ForceInclusionCard: React.FC = () => {
               to={to as Address}
               selectedChain={selectedChain}
               onDataGenerated={handleDataGenerated}
-              proxyImplementationAddress={proxyImplementationAddress}
-              setProxyImplementationAddress={setProxyImplementationAddress}
             />
           </ModalBody>
           <ModalFooter>

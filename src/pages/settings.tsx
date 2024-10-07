@@ -20,7 +20,7 @@ const Settings = () => {
   };
 
   return (
-    <Card className="bg-card p-8 shadow-md w-full max-w-lg">
+    <Card className="bg-card p-8 w-full max-w-lg shadow-none">
       <h2 className="text-2xl font-bold mb-4">Settings</h2>
       <div className="mb-6">
         <h2 className="text-lg mb-2">Theme</h2>
