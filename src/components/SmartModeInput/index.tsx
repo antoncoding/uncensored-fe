@@ -112,7 +112,8 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
   const writableFunctions =
     abi?.filter(
       (item: any) =>
-        item.type === 'function' && !item.stateMutability.includes('view')
+        item.type === 'function' &&
+        !['view', 'pure'].includes(item.stateMutability)
     ) || [];
 
   return (
