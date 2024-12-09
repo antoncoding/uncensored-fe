@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
 import Link from 'next/link';
-import { CiSettings, CiTimer } from 'react-icons/ci';
+import { CiSettings } from 'react-icons/ci';
+import { LuHistory } from "react-icons/lu";
+
 import { useAccount } from 'wagmi';
 import SettingsModal from './SettingsModal';
 
@@ -23,7 +25,7 @@ const Navbar = () => {
           href={address ? `/history/${address}` : '#'}
           className={`ml-4 ${!address ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'}`}
         >
-          <CiTimer size={30} />
+          <LuHistory size={30} />
         </Link>
         <div
           className="ml-4 cursor-pointer hover:opacity-80"

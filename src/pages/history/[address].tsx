@@ -6,6 +6,7 @@ import HistoryList from '@/components/HistoryList';
 import { toast } from 'react-toastify';
 import Meta from '@/components/Meta';
 import { CiWarning } from 'react-icons/ci';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -28,13 +29,17 @@ export default function HistoryPage() {
             <div className="bg-card rounded-lg shadow-lg p-6">
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold">Force Inclusion History</h1>
-                <span className="text-sm text-gray-500">
-                  {histories.length} transaction{histories.length !== 1 ? 's' : ''}
-                </span>
+                {!isLoading && !error && (
+                  <span className="text-sm text-gray-500">
+                    {histories.length} transaction{histories.length !== 1 ? 's' : ''}
+                  </span>
+                )}
               </div>
               
               {isLoading && (
-                <div className="text-center py-4">Loading...</div>
+                <div className="py-12">
+                  <LoadingSpinner />
+                </div>
               )}
 
               {error && (

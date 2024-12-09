@@ -56,11 +56,6 @@ const processEventsInBatches = async (
         const l2TxHashes = uncensored.getL2TxHashes(receipt, chainId);
         const l2TxHash = l2TxHashes[0];
 
-        if (!l2TxHash) {
-          console.log('receipt', receipt);
-          console.log('l2TxHashes', l2TxHashes);
-        }
-
         let l2Status: TransactionStatus | undefined;
         
         if (l2TxHash) {
