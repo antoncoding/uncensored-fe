@@ -24,7 +24,8 @@ module.exports = {
         },
       },
       animation: {
-        'variable-spin': 'variable-spin 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+        'variable-spin':
+          'variable-spin 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
       },
     },
   },

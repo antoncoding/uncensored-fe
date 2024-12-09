@@ -22,40 +22,43 @@ interface LoadingSpinnerProps {
   color?: string;
 }
 
-export default function LoadingSpinner({ 
-  size = 32, 
+export default function LoadingSpinner({
+  size = 32,
   width = 3,
-  color = '#3b82f6'
+  color = '#3b82f6',
 }: LoadingSpinnerProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <>
         <style>{rotateCSS}</style>
-        <div className="flex items-center justify-center" style={{ width: size, height: size }}>
+        <div
+          className="flex items-center justify-center"
+          style={{ width: size, height: size }}
+        >
           <div className="relative p-1.5" style={{ width: size, height: size }}>
             {/* Background circle */}
-            <div 
+            <div
               className="absolute rounded-full"
-              style={{ 
+              style={{
                 width: size,
                 height: size,
                 borderWidth: width,
                 borderColor: color,
-                opacity: 0.1
-              }} 
+                opacity: 0.1,
+              }}
             />
             {/* Spinning element */}
-            <div 
+            <div
               className="RotateElement absolute rounded-full"
-              style={{ 
+              style={{
                 width: size,
                 height: size,
                 borderWidth: width,
                 borderTopColor: color,
                 borderRightColor: 'transparent',
                 borderBottomColor: 'transparent',
-                borderLeftColor: 'transparent'
-              }} 
+                borderLeftColor: 'transparent',
+              }}
             />
           </div>
         </div>

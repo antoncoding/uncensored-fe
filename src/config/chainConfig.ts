@@ -1,10 +1,10 @@
-import { Chain, mainnet, optimism, arbitrum, base, optimismSepolia } from 'viem/chains';
+import { Chain, optimismSepolia } from 'viem/chains';
 
 export interface ChainConfig {
   portalAddress: `0x${string}`;
   startBlock: number;
   chain: Chain;
-  isOpstack?: boolean
+  isOpstack?: boolean;
 }
 
 export const chainConfigs: Record<number, ChainConfig> = {
@@ -18,6 +18,6 @@ export const chainConfigs: Record<number, ChainConfig> = {
     portalAddress: '0x16Fc5058F25648194471939df75CF27A2fdC48BC', // Replace with actual address
     startBlock: 4071248, // Replace with actual start block
     chain: optimismSepolia,
-    isOpstack: true
+    isOpstack: true,
   },
 };

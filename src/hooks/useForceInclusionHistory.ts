@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
-import { createPublicClient, http, parseAbiItem, TransactionReceipt, Chain } from 'viem';
+import {
+  createPublicClient,
+  http,
+  parseAbiItem,
+  TransactionReceipt,
+  Chain,
+} from 'viem';
 import { isAddress } from 'viem';
 import { chainConfigs } from '@/config/chainConfig';
 import { sepolia } from 'viem/chains';
@@ -10,11 +16,11 @@ const uncensored = new UncensoredSDK();
 export enum TransactionStatus {
   SUCCEEDED = 'SUCCEEDED',
   FAILED = 'FAILED',
-  PENDING = 'PENDING'
+  PENDING = 'PENDING',
 }
 
 export enum HistoryEntryType {
-  L1_DEPOSIT = 'L1_DEPOSIT'
+  L1_DEPOSIT = 'L1_DEPOSIT',
 }
 
 export interface L1DepositHistory {
@@ -31,7 +37,7 @@ export interface L1DepositHistory {
   l2Chain: Chain;
 }
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const processEventsInBatches = async (
   events: any[],
@@ -42,35 +48,36 @@ const processEventsInBatches = async (
   delayMs: number = 1000
 ) => {
   const results: L1DepositHistory[] = [];
-  
+
   for (let i = 0; i < events.length; i += batchSize) {
     const batch = events.slice(i, i + batchSize);
-    
+
     const batchResults = await Promise.all(
       batch.map(async (event) => {
         const block = await l1Client.getBlock({ blockHash: event.blockHash });
-        const receipt = await l1Client.getTransactionReceipt({
-          hash: event.transactionHash as `0x${string}`
-        }) as TransactionReceipt;
-        
+        const receipt = (await l1Client.getTransactionReceipt({
+          hash: event.transactionHash as `0x${string}`,
+        })) as TransactionReceipt;
+
         const l2TxHashes = uncensored.getL2TxHashes(receipt, chainId);
         const l2TxHash = l2TxHashes[0];
 
         let l2Status: TransactionStatus | undefined;
-        
+
         if (l2TxHash) {
           try {
             const l2Receipt = await l2Client.getTransactionReceipt({
-              hash: l2TxHash as `0x${string}`
+              hash: l2TxHash as `0x${string}`,
             });
-            l2Status = l2Receipt.status === 'success' 
-              ? TransactionStatus.SUCCEEDED 
-              : TransactionStatus.FAILED;
+            l2Status =
+              l2Receipt.status === 'success'
+                ? TransactionStatus.SUCCEEDED
+                : TransactionStatus.FAILED;
           } catch (e) {
             l2Status = TransactionStatus.PENDING;
           }
         }
-        
+
         return {
           type: HistoryEntryType.L1_DEPOSIT,
           txHash: event.transactionHash,
@@ -82,18 +89,18 @@ const processEventsInBatches = async (
           l2TransactionHash: l2TxHash,
           l2Status,
           l2Chain: chainConfigs[chainId].chain,
-          l1TxFee: receipt.gasUsed * receipt.effectiveGasPrice
+          l1TxFee: receipt.gasUsed * receipt.effectiveGasPrice,
         };
       })
     );
-    
+
     results.push(...batchResults);
-    
+
     if (i + batchSize < events.length) {
       await sleep(delayMs);
     }
   }
-  
+
   return results;
 };
 
@@ -120,31 +127,35 @@ export function useForceInclusionHistory(address: string) {
 
         const l1Client = createPublicClient({
           chain: sepolia,
-          transport: http(l1RpcUrl)
+          transport: http(l1RpcUrl),
         });
 
-        const DEPOSIT_EVENT = parseAbiItem('event TransactionDeposited(address indexed from, address indexed to, uint256 indexed version, bytes opaqueData)');
-        
+        const DEPOSIT_EVENT = parseAbiItem(
+          'event TransactionDeposited(address indexed from, address indexed to, uint256 indexed version, bytes opaqueData)'
+        );
+
         const allHistories: L1DepositHistory[] = [];
 
         // Filter for OP Stack chains only
-        const opStackChains = Object.entries(chainConfigs).filter(([_, config]) => config.isOpstack);
+        const opStackChains = Object.entries(chainConfigs).filter(
+          ([, config]) => config.isOpstack
+        );
 
         // Process each chain sequentially to avoid too many concurrent requests
         for (const [chainId, config] of opStackChains) {
           const l2Client = createPublicClient({
             chain: config.chain,
-            transport: http()
+            transport: http(),
           });
 
           const events = await l1Client.getLogs({
             address: config.portalAddress,
             event: DEPOSIT_EVENT,
             args: {
-              from: address
+              from: address,
             },
             fromBlock: BigInt(config.startBlock),
-            toBlock: 'latest'
+            toBlock: 'latest',
           });
 
           const chainHistories = await processEventsInBatches(
@@ -160,7 +171,9 @@ export function useForceInclusionHistory(address: string) {
         // Sort all histories by timestamp in descending order
         setHistories(allHistories.sort((a, b) => b.timestamp - a.timestamp));
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch history'));
+        setError(
+          err instanceof Error ? err : new Error('Failed to fetch history')
+        );
       } finally {
         setIsLoading(false);
       }

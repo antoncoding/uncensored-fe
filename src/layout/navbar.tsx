@@ -3,7 +3,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
 import Link from 'next/link';
 import { CiSettings } from 'react-icons/ci';
-import { LuHistory } from "react-icons/lu";
+import { LuHistory } from 'react-icons/lu';
 
 import { useAccount } from 'wagmi';
 import SettingsModal from './SettingsModal';
@@ -21,7 +21,7 @@ const Navbar = () => {
       </div>
       <div className="ml-auto pr-4 flex items-center">
         <ConnectButton />
-        <Link 
+        <Link
           href={address ? `/history/${address}` : '#'}
           className={`ml-4 ${!address ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'}`}
         >

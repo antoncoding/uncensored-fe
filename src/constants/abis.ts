@@ -7,7 +7,7 @@ export const INBOX_ABI = [
       { type: 'address', name: 'from', indexed: true },
       { type: 'address', name: 'to', indexed: true },
       { type: 'uint256', name: 'value' },
-      { type: 'bytes', name: 'data' }
-    ]
-  }
-] as const; 
+      { type: 'bytes', name: 'data' },
+    ],
+  },
+] as const;

@@ -11,7 +11,9 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 export default function HistoryPage() {
   const router = useRouter();
   const { address } = router.query;
-  const { histories, isLoading, error } = useForceInclusionHistory(address as string);
+  const { histories, isLoading, error } = useForceInclusionHistory(
+    address as string
+  );
 
   useEffect(() => {
     if (address && !isAddress(address as string)) {
@@ -31,11 +33,12 @@ export default function HistoryPage() {
                 <h1 className="text-2xl font-bold">Force Inclusion History</h1>
                 {!isLoading && !error && (
                   <span className="text-sm text-gray-500">
-                    {histories.length} transaction{histories.length !== 1 ? 's' : ''}
+                    {histories.length} transaction
+                    {histories.length !== 1 ? 's' : ''}
                   </span>
                 )}
               </div>
-              
+
               {isLoading && (
                 <div className="py-12">
                   <LoadingSpinner />
@@ -45,7 +48,9 @@ export default function HistoryPage() {
               {error && (
                 <div className="flex items-center gap-2 p-4 my-4 bg-red-100 border border-red-300 rounded-lg text-red-700">
                   <CiWarning size={20} className="flex-shrink-0" />
-                  <span className="text-sm">Error loading history: {error.message}</span>
+                  <span className="text-sm">
+                    Error loading history: {error.message}
+                  </span>
                 </div>
               )}
 
