@@ -10,7 +10,7 @@ export interface ChainConfig {
 export const chainConfigs: Record<number, ChainConfig> = {
   // [base.id]: {
   //   portalAddress: '0x0000000000000000000000000000000000000000',
-  //   startBlock: 0, 
+  //   startBlock: 0,
   //   chain: base,
   //   isOpstack: true
   // },
