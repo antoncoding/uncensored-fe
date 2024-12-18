@@ -29,14 +29,20 @@ export default function HistoryPage() {
         <div className="flex-grow flex justify-center">
           <div className="w-full max-w-2xl px-4">
             <div className="bg-card rounded-lg shadow-lg p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold">Force Inclusion History</h1>
-                {!isLoading && !error && (
-                  <span className="text-sm text-gray-500">
-                    {histories.length} transaction
-                    {histories.length !== 1 ? 's' : ''}
-                  </span>
+              <div className="flex mb-6 flex-col gap-2">
+                <h1 className="text-2xl font-bold">History</h1>
+
+                <div className='flex items-center gap-2'>
+                  <div className='text-sm text-gray-500'>
+                    Force Inclusions in the last 5000 blocks:
+                  </div>
+                  {!isLoading && !error && (
+                    <span className="text-sm text-gray-500">
+                      {histories.length} tx
+                      {histories.length !== 1 ? 's' : ''}
+                    </span>
                 )}
+                </div>
               </div>
 
               {isLoading && (

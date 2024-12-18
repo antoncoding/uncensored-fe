@@ -22,6 +22,7 @@ import {
   useChainId,
   useSendTransaction,
   useSwitchChain,
+  useTransactionReceipt,
   useWaitForTransactionReceipt,
 } from 'wagmi';
 import { Address, isAddress } from 'viem';

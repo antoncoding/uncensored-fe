@@ -59,6 +59,7 @@ const processEventsInBatches = async (
           hash: event.transactionHash as `0x${string}`,
         })) as TransactionReceipt;
 
+        // get l2 tx and status
         const l2TxHashes = uncensored.getL2TxHashes(receipt, chainId);
         const l2TxHash = l2TxHashes[0];
 
@@ -148,13 +149,17 @@ export function useForceInclusionHistory(address: string) {
             transport: http(),
           });
 
+          const latestBlockNumber = await l1Client.getBlockNumber();
+          const EVENT_QUERY_BLOCK_RANGE = BigInt(5000 - 100); // Block range limit is 5000. We reduce it further by 100 as a buffer
+          const fromBlock = latestBlockNumber - EVENT_QUERY_BLOCK_RANGE;
+
           const events = await l1Client.getLogs({
             address: config.portalAddress,
             event: DEPOSIT_EVENT,
             args: {
               from: address,
             },
-            fromBlock: BigInt(config.startBlock),
+            fromBlock,
             toBlock: 'latest',
           });
 
