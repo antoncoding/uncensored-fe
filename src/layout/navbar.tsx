@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { ConnectButton } from '@rainbow-me/rainbowkit'; // Ensure you have this import
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
-import Link from 'next/link'; // Import Link from next/link
+import Link from 'next/link';
 import { CiSettings } from 'react-icons/ci';
-import SettingsModal from './SettingsModal'; // You'll need to create this component
+import { LuHistory } from 'react-icons/lu';
+
+import { useAccount } from 'wagmi';
+import SettingsModal from './SettingsModal';
 
 const Navbar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { address } = useAccount();
 
   return (
     <nav className="flex justify-between items-center px-12 py-4 bg-card">
@@ -17,8 +21,14 @@ const Navbar = () => {
       </div>
       <div className="ml-auto pr-4 flex items-center">
         <ConnectButton />
+        <Link
+          href={address ? `/history/${address}` : '#'}
+          className={`ml-4 ${!address ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'}`}
+        >
+          <LuHistory size={30} />
+        </Link>
         <div
-          className="ml-4 cursor-pointer"
+          className="ml-4 cursor-pointer hover:opacity-80"
           onClick={() => setIsSettingsOpen(true)}
         >
           <CiSettings size={30} />
