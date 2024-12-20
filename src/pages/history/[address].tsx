@@ -34,7 +34,7 @@ export default function HistoryPage() {
 
                 <div className="flex items-center gap-2">
                   <div className="text-sm text-gray-500">
-                    Force Inclusions in the last 5000 blocks:
+                    Force Inclusions in the last 5000 L1 blocks:
                   </div>
                   {!isLoading && !error && (
                     <span className="text-sm text-gray-500">
