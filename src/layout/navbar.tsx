@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
 import Link from 'next/link';
-import { IoSettingsOutline } from "react-icons/io5";
+import { IoSettingsOutline } from 'react-icons/io5';
 import { LuHistory } from 'react-icons/lu';
 
 import { useAccount } from 'wagmi';
