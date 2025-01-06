@@ -5,6 +5,7 @@ export interface ChainConfig {
   startBlock: number;
   chain: Chain;
   isOpstack?: boolean;
+  maxWaitTime?: number;
 }
 
 export const chainConfigs: Record<number, ChainConfig> = {
@@ -19,5 +20,6 @@ export const chainConfigs: Record<number, ChainConfig> = {
     startBlock: 4071248, // block number of the portal contract deployment
     chain: optimismSepolia,
     isOpstack: true,
+    maxWaitTime: 12 * 3600, // 12 hours
   },
 };

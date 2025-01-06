@@ -10,9 +10,6 @@ module.exports = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ['var(--font-inter)'],
-      },
       colors: {
         primary: '#0ea5e9',
         secondary: '#93c5fd',

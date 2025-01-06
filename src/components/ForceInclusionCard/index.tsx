@@ -29,6 +29,8 @@ import { optimismSepolia, sepolia } from 'viem/chains';
 import { toast } from 'react-toastify';
 import { chainIdToExplorer } from '@/utils/chains';
 import SmartModeInput from '../SmartModeInput';
+import { chainConfigs } from '@/config/chainConfig';
+import { IoTimeOutline } from 'react-icons/io5';
 
 const uncensored = new UncensoredSDK();
 
@@ -372,6 +374,17 @@ const ForceInclusionCard: React.FC = () => {
           Force Include
         </Button>
       </div>
+
+      {chainConfigs[l2ChainId]?.maxWaitTime ? (
+        <div className="flex h-10 items-center justify-end text-sm text-gray-500">
+          <IoTimeOutline className="text-gray-400" />
+          <span>
+            Max wait time: {chainConfigs[l2ChainId].maxWaitTime! / 3600} hours
+          </span>
+        </div>
+      ) : (
+        <div className="h-10"></div>
+      )}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>Compose Transaction Data</ModalHeader>
