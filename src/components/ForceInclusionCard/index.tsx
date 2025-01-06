@@ -81,8 +81,6 @@ const ForceInclusionCard: React.FC = () => {
     },
   });
 
-  console.log('l1TxHash', l1TxHash, l1ChainId, 'enabled', !!l1TxHash);
-
   const {
     isLoading: isL2Loading,
     isSuccess: isL2Success,

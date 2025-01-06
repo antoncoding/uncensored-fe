@@ -8,8 +8,7 @@ import { formatDate } from '@/utils/date';
 import { sepolia } from 'viem/chains';
 import Image from 'next/image';
 import { formatEther } from 'ethers';
-import { FaGasPump } from "react-icons/fa6";
-
+import { FaGasPump } from 'react-icons/fa6';
 
 type Props = {
   transactions: L1DepositHistory[];
@@ -117,7 +116,10 @@ export default function HistoryList({ transactions }: Props) {
                 >
                   {formatTxHash(tx.txHash)}
                 </Link>
-                <span className="text-gray-400"> <FaGasPump size={12} /> </span>
+                <span className="text-gray-400">
+                  {' '}
+                  <FaGasPump size={12} />{' '}
+                </span>
                 <span>{Number(formatEther(tx.l1TxFee)).toFixed(7)} ETH</span>
                 <span>{formatDate(tx.timestamp)}</span>
               </div>
