@@ -8,6 +8,7 @@ import { formatDate } from '@/utils/date';
 import { sepolia } from 'viem/chains';
 import Image from 'next/image';
 import { formatEther } from 'ethers';
+import { FaGasPump } from 'react-icons/fa6';
 
 type Props = {
   transactions: L1DepositHistory[];
@@ -71,7 +72,7 @@ export default function HistoryList({ transactions }: Props) {
                 <div className="flex items-center gap-2 min-w-0">
                   {tx.l2TransactionHash && (
                     <div className="flex gap-2">
-                      Tx:
+                      Hash:
                       <Link
                         href={`${chainIdToExplorer(tx.l2Chain.id, tx.l2TransactionHash)}`}
                         isExternal
@@ -106,8 +107,8 @@ export default function HistoryList({ transactions }: Props) {
               </div>
 
               {/* Lower Row */}
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span className="text-gray-400">Forced</span>
+              <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                <span className="text-gray-400">Forced Inclusion Tx:</span>
                 <Link
                   href={`${chainIdToExplorer(sepolia.id, tx.txHash)}`}
                   isExternal
@@ -115,11 +116,11 @@ export default function HistoryList({ transactions }: Props) {
                 >
                   {formatTxHash(tx.txHash)}
                 </Link>
-
-                <span className="text-gray-400"> Fee: </span>
+                <span className="text-gray-400">
+                  {' '}
+                  <FaGasPump size={12} />{' '}
+                </span>
                 <span>{Number(formatEther(tx.l1TxFee)).toFixed(7)} ETH</span>
-                <span>•</span>
-
                 <span>{formatDate(tx.timestamp)}</span>
               </div>
             </div>

@@ -39,6 +39,14 @@ export interface L1DepositHistory {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const getL1RpcUrl = () => {
+  const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
+  if (alchemyKey) {
+    return `https://eth-sepolia.g.alchemy.com/v2/${alchemyKey}`;
+  }
+  return process.env.NEXT_PUBLIC_L1_RPC_URL;
+};
+
 const processEventsInBatches = async (
   events: any[],
   l1Client: any,
@@ -109,6 +117,7 @@ export function useForceInclusionHistory(address: string) {
   const [histories, setHistories] = useState<L1DepositHistory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     async function fetchHistory() {
@@ -121,7 +130,7 @@ export function useForceInclusionHistory(address: string) {
         setIsLoading(true);
         setError(null);
 
-        const l1RpcUrl = process.env.NEXT_PUBLIC_L1_RPC_URL;
+        const l1RpcUrl = getL1RpcUrl();
         if (!l1RpcUrl) {
           throw new Error('L1 RPC URL not configured');
         }
@@ -185,7 +194,11 @@ export function useForceInclusionHistory(address: string) {
     }
 
     fetchHistory();
-  }, [address]);
+  }, [address, refreshKey]);
 
-  return { histories, isLoading, error };
+  const refresh = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
+
+  return { histories, isLoading, error, refresh };
 }

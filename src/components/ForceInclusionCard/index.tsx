@@ -107,6 +107,7 @@ const ForceInclusionCard: React.FC = () => {
   // Handle L1 transaction status
   useEffect(() => {
     if (!l1TxHash) return;
+    console.log('l1 receipt', l1Receipt);
     if (isL1Success) {
       toast.update('l1-transaction-confirmation', {
         render: (
@@ -283,7 +284,7 @@ const ForceInclusionCard: React.FC = () => {
   };
 
   return (
-    <Card className="p-8 w-full max-w-md shadow-md bg-card">
+    <Card className="p-8 w-full max-w-xl shadow-sm bg-card">
       <h2 className="text-2xl font-bold mb-4">Force Inclusion</h2>
       <p className="text-sm text-gray-500 mb-6">
         Enter L2 transaction details, and we&apos;ll force its inclusion from L1
@@ -361,7 +362,6 @@ const ForceInclusionCard: React.FC = () => {
 
         <Input
           label="Gas Limit"
-          placeholder="150000"
           type="number"
           value={gasLimit}
           onChange={(e) => setGasLimit(e.target.value)}

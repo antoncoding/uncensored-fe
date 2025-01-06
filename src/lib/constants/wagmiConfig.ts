@@ -51,8 +51,24 @@ import {
 } from 'wagmi/chains';
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_ID || '';
+const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
 
-//const { wallets } = getDefaultWallets();
+const getTransport = (chain: any) => {
+  if (!alchemyKey) return http();
+
+  const alchemyUrls: { [key: number]: string } = {
+    [mainnet.id]: `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+    [optimism.id]: `https://opt-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+    [arbitrum.id]: `https://arb-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+    [base.id]: `https://base-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+    [optimismSepolia.id]: `https://opt-sepolia.g.alchemy.com/v2/${alchemyKey}`,
+    [arbitrumSepolia.id]: `https://arb-sepolia.g.alchemy.com/v2/${alchemyKey}`,
+    [sepolia.id]: `https://eth-sepolia.g.alchemy.com/v2/${alchemyKey}`,
+  };
+
+  return http(alchemyUrls[chain.id] || undefined);
+};
+
 const wallets = [
   //...getDefaultWallets().wallets,
   {
@@ -103,7 +119,7 @@ const wallets = [
 ];
 
 export const wagmiConfig = getDefaultConfig({
-  appName: 'Next dApp Template',
+  appName: 'Uncensored',
   projectId: projectId,
   wallets: wallets,
   chains: [
@@ -117,13 +133,13 @@ export const wagmiConfig = getDefaultConfig({
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [sepolia] : []),
   ],
   transports: {
-    [mainnet.id]: http(),
-    [optimism.id]: http(),
-    [arbitrum.id]: http(),
-    [base.id]: http(),
-    [optimismSepolia.id]: http(),
-    [arbitrumSepolia.id]: http(),
-    [sepolia.id]: http(),
+    [mainnet.id]: getTransport(mainnet),
+    [optimism.id]: getTransport(optimism),
+    [arbitrum.id]: getTransport(arbitrum),
+    [base.id]: getTransport(base),
+    [optimismSepolia.id]: getTransport(optimismSepolia),
+    [arbitrumSepolia.id]: getTransport(arbitrumSepolia),
+    [sepolia.id]: getTransport(sepolia),
   },
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
