@@ -7,11 +7,15 @@ import { toast } from 'react-toastify';
 import Meta from '@/components/Meta';
 import { CiWarning } from 'react-icons/ci';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { useAccount } from 'wagmi';
+import { Button } from '@nextui-org/react';
+import { IoMdRefresh } from 'react-icons/io';
 
 export default function HistoryPage() {
   const router = useRouter();
   const { address } = router.query;
-  const { histories, isLoading, error } = useForceInclusionHistory(
+  const { address: connectedAddress } = useAccount();
+  const { histories, isLoading, error, refresh } = useForceInclusionHistory(
     address as string
   );
 
@@ -30,7 +34,24 @@ export default function HistoryPage() {
           <div className="w-full max-w-2xl px-4">
             <div className="bg-card rounded-lg shadow-lg p-6">
               <div className="flex mb-6 flex-col gap-2">
-                <h1 className="text-2xl font-bold">History</h1>
+                <div className="flex justify-between items-center">
+                  <h1 className="text-2xl font-bold">History</h1>
+                  <Button
+                    isIconOnly
+                    variant="light"
+                    aria-label="Refresh"
+                    isLoading={isLoading}
+                    onClick={() => refresh()}
+                  >
+                    <IoMdRefresh className="w-5 h-5" />
+                  </Button>
+                </div>
+
+                {connectedAddress && (
+                  <div className="text-sm text-gray-500">
+                    Connected as: {connectedAddress}
+                  </div>
+                )}
 
                 <div className="flex items-center gap-2">
                   <div className="text-sm text-gray-500">

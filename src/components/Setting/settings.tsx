@@ -21,9 +21,9 @@ const Settings = () => {
 
   return (
     <Card className="bg-card p-8 w-full max-w-lg shadow-none">
-      <h2 className="text-2xl font-bold mb-4">Settings</h2>
+      <h2 className="text-2xl mb-4">Settings</h2>
       <div className="mb-6">
-        <h2 className="text-lg mb-2">Theme</h2>
+        <h2 className="text mb-2 font-mono">Theme</h2>
         <Switch
           isSelected={theme === 'dark'}
           onChange={toggleTheme}
@@ -36,7 +36,7 @@ const Settings = () => {
       {/* Future settings sections can be added here */}
 
       <div className="mb-6">
-        <h2 className="text-lg mb-2">RPC Providers</h2>
+        <h2 className="text mb-2 font-mono">RPC Providers</h2>
         <p className="text-sm text-gray-500 mb-2">Coming soon...</p>
       </div>
     </Card>

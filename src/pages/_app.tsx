@@ -19,6 +19,8 @@ import { NextUIProvider } from '@nextui-org/react';
 // Import Tailwind CSS
 import '@/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
+// Import font
+import { inter } from '@/config/fonts';
 
 // Merge
 import merge from 'lodash.merge';
@@ -49,17 +51,19 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <NextUIProvider>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-        <WagmiProvider config={wagmiConfig}>
-          <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider theme={theme} showRecentTransactions={true}>
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
-            </RainbowKitProvider>
-          </QueryClientProvider>
-        </WagmiProvider>
-      </ThemeProvider>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider theme={theme}>
+            <ThemeProvider attribute="data-theme">
+              <main className={`${inter.variable} font-sans`}>
+                <Layout>
+                  <Component {...pageProps} />
+                </Layout>
+              </main>
+            </ThemeProvider>
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
     </NextUIProvider>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import Settings from '../pages/settings';
+import Settings from '../components/Setting/settings';
 
 interface SettingsModalProps {
   onClose: () => void;

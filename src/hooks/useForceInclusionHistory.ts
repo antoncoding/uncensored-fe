@@ -109,6 +109,7 @@ export function useForceInclusionHistory(address: string) {
   const [histories, setHistories] = useState<L1DepositHistory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     async function fetchHistory() {
@@ -185,7 +186,11 @@ export function useForceInclusionHistory(address: string) {
     }
 
     fetchHistory();
-  }, [address]);
+  }, [address, refreshKey]);
 
-  return { histories, isLoading, error };
+  const refresh = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
+
+  return { histories, isLoading, error, refresh };
 }

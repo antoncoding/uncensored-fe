@@ -107,7 +107,7 @@ export default function HistoryList({ transactions }: Props) {
 
               {/* Lower Row */}
               <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span className="text-gray-400">Forced</span>
+                <span className="text-gray-400">Forced by</span>
                 <Link
                   href={`${chainIdToExplorer(sepolia.id, tx.txHash)}`}
                   isExternal
