@@ -6,48 +6,54 @@ import {
   optimismSepolia,
   sepolia,
 } from 'viem/chains';
+import { isTestnet, L1_CHAIN } from '@/config/environment';
+import { chainConfigs } from '@/config/chainConfig';
 
 export function chainIdToExplorer(chainId: number | undefined, txHash: string) {
-  if (!chainId) chainId = mainnet.id;
+  if (!chainId) chainId = L1_CHAIN.id;
 
-  switch (chainId) {
-    case mainnet.id:
-      return `https://etherscan.io/tx/${txHash}`;
-    case optimism.id:
-      return `https://optimistic.etherscan.io/tx/${txHash}`;
-    case arbitrum.id:
-      return `https://arbiscan.io/tx/${txHash}`;
-    case sepolia.id:
-      return `https://sepolia.etherscan.io/tx/${txHash}`;
-    case arbitrumSepolia.id:
-      return `https://sepolia.arbiscan.io/tx/${txHash}`;
-    case optimismSepolia.id:
-      return `https://sepolia-optimism.etherscan.io/tx/${txHash}`;
-    default:
-      return `https://etherscan.io/tx/${txHash}`;
+  // Check if it's a supported L2 chain
+  const chainConfig = chainConfigs[chainId];
+  if (chainConfig) {
+    return `${chainConfig.explorerUrl}/tx/${txHash}`;
   }
+
+  // L1 chains
+  if (chainId === mainnet.id) {
+    return `https://etherscan.io/tx/${txHash}`;
+  }
+  if (chainId === sepolia.id) {
+    return `https://sepolia.etherscan.io/tx/${txHash}`;
+  }
+
+  // Default to L1 explorer based on environment
+  return isTestnet
+    ? `https://sepolia.etherscan.io/tx/${txHash}`
+    : `https://etherscan.io/tx/${txHash}`;
 }
 
 export function chainIdToAddressExplorer(
   chainId: number | undefined,
   address: string
 ) {
-  if (!chainId) chainId = mainnet.id;
+  if (!chainId) chainId = L1_CHAIN.id;
 
-  switch (chainId) {
-    case mainnet.id:
-      return `https://etherscan.io/address/${address}`;
-    case optimism.id:
-      return `https://optimistic.etherscan.io/address/${address}`;
-    case arbitrum.id:
-      return `https://arbiscan.io/address/${address}`;
-    case sepolia.id:
-      return `https://sepolia.etherscan.io/address/${address}`;
-    case arbitrumSepolia.id:
-      return `https://sepolia.arbiscan.io/address/${address}`;
-    case optimismSepolia.id:
-      return `https://sepolia-optimism.etherscan.io/address/${address}`;
-    default:
-      return `https://etherscan.io/address/${address}`;
+  // Check if it's a supported L2 chain
+  const chainConfig = chainConfigs[chainId];
+  if (chainConfig) {
+    return `${chainConfig.explorerUrl}/address/${address}`;
   }
+
+  // L1 chains
+  if (chainId === mainnet.id) {
+    return `https://etherscan.io/address/${address}`;
+  }
+  if (chainId === sepolia.id) {
+    return `https://sepolia.etherscan.io/address/${address}`;
+  }
+
+  // Default to L1 explorer based on environment
+  return isTestnet
+    ? `https://sepolia.etherscan.io/address/${address}`
+    : `https://etherscan.io/address/${address}`;
 }

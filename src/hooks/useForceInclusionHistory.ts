@@ -7,11 +7,8 @@ import {
   Chain,
 } from 'viem';
 import { isAddress } from 'viem';
-import { chainConfigs } from '@/config/chainConfig';
+import { chainConfigs, uncensoredSDK } from '@/config/chainConfig';
 import { sepolia } from 'viem/chains';
-import { UncensoredSDK } from '@rollup-uncensored/sdk';
-
-const uncensored = new UncensoredSDK();
 
 export enum TransactionStatus {
   SUCCEEDED = 'SUCCEEDED',
@@ -68,7 +65,7 @@ const processEventsInBatches = async (
         })) as TransactionReceipt;
 
         // get l2 tx and status
-        const l2TxHashes = uncensored.getL2TxHashes(receipt, chainId);
+        const l2TxHashes = uncensoredSDK.getL2TxHashes(receipt, chainId);
         const l2TxHash = l2TxHashes[0];
 
         let l2Status: TransactionStatus | undefined;

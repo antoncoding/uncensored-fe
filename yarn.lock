@@ -3102,10 +3102,10 @@
     "@react-types/overlays" "^3.8.9"
     "@react-types/shared" "^3.24.1"
 
-"@rollup-uncensored/sdk@0.1.6":
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/@rollup-uncensored/sdk/-/sdk-0.1.6.tgz#57f8b58c15919f1067bcd2387e40eb31ccd6bd2c"
-  integrity sha512-me9qk3xYNNXV7zdr7/k58jhU9eMs3hrkoE0S9n8KRHVBnlbFFM354n66MRyrj+f7KxP35kw1CFwsbiIR42rkLQ==
+"@rollup-uncensored/sdk@0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@rollup-uncensored/sdk/-/sdk-0.1.7.tgz#7731d8d3f060b36e780b6f94d30f620ff847e316"
+  integrity sha512-2SF5vz6HVEel0cvhjDcx2OmRX3NfcZ+S05YxLb0Bvfc+PAmoCsa2cwWUJtZYae7u0PSY8sLMXvBpucCQJ+vRfA==
   dependencies:
     viem "2.21.12"
 

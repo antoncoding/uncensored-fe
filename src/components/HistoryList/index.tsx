@@ -9,6 +9,7 @@ import { sepolia } from 'viem/chains';
 import Image from 'next/image';
 import { formatEther } from 'ethers';
 import { FaGasPump } from 'react-icons/fa6';
+import { chainConfigs } from '@/config/chainConfig';
 
 type Props = {
   transactions: L1DepositHistory[];
@@ -28,12 +29,8 @@ const getStatusColor = (status: TransactionStatus) => {
 };
 
 const getChainLogo = (chainId: number) => {
-  switch (chainId) {
-    case 11155420: // optimismSepolia
-      return '/img/op.png';
-    default:
-      return '/img/eth.png';
-  }
+  const chainConfig = chainConfigs[chainId];
+  return chainConfig?.logo || '/img/eth.png';
 };
 
 const formatTxHash = (hash: string) => {

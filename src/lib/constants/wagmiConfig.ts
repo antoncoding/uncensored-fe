@@ -44,6 +44,7 @@ import {
   arbitrum,
   arbitrumSepolia,
   base,
+  baseSepolia,
   mainnet,
   optimism,
   optimismSepolia,
@@ -61,9 +62,11 @@ const getTransport = (chain: any) => {
     [optimism.id]: `https://opt-mainnet.g.alchemy.com/v2/${alchemyKey}`,
     [arbitrum.id]: `https://arb-mainnet.g.alchemy.com/v2/${alchemyKey}`,
     [base.id]: `https://base-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+    //
     [optimismSepolia.id]: `https://opt-sepolia.g.alchemy.com/v2/${alchemyKey}`,
     [arbitrumSepolia.id]: `https://arb-sepolia.g.alchemy.com/v2/${alchemyKey}`,
     [sepolia.id]: `https://eth-sepolia.g.alchemy.com/v2/${alchemyKey}`,
+    [baseSepolia.id]: `https://base-sepolia.g.alchemy.com/v2/${alchemyKey}`,
   };
 
   return http(alchemyUrls[chain.id] || undefined);
