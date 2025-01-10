@@ -102,8 +102,6 @@ const ForceInclusionCard: React.FC = () => {
     },
   });
 
-  console.log('l2 hash', l2TxHash);
-
   /**
    * When L1 transaction is successfully sent to the network
    */
@@ -183,8 +181,6 @@ const ForceInclusionCard: React.FC = () => {
     l2ChainId,
   ]);
 
-  console.log('l', l2Error)
-
   // Handle L2 transaction status
   useEffect(() => {
     if (!l2TxHash) return;
@@ -222,8 +218,6 @@ const ForceInclusionCard: React.FC = () => {
         }
       );
     } else if (isL2Error) {
-      console.log('l2Error.cause', l2Error.cause, l2Error)
-
       toast.update('l2-transaction-confirmation', {
         render: (
           <div className="p-2">
