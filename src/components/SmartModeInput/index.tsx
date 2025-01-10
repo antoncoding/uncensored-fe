@@ -12,19 +12,19 @@ import {
 import { Address, encodeFunctionData, isAddress } from 'viem';
 import { toast } from 'react-toastify';
 import { chainIdToAddressExplorer } from '@/utils/chains';
-import { arbitrumSepolia, optimismSepolia } from 'viem/chains';
 import { HiCheck } from 'react-icons/hi';
 import { RxCrossCircled } from 'react-icons/rx';
+import { chainConfigs } from '@/config/chainConfig';
 
 interface SmartModeInputProps {
   to: Address;
-  selectedChain: string;
+  selectedChainId: number;
   onDataGenerated: (data: `0x${string}`) => void;
 }
 
 const SmartModeInput: React.FC<SmartModeInputProps> = ({
   to,
-  selectedChain,
+  selectedChainId,
   onDataGenerated,
 }) => {
   const [abi, setAbi] = useState<any[] | null>(null);
@@ -51,24 +51,28 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
       setFunctionInputs({});
       setProxyImplementationAddress('');
     }
-  }, [to, selectedChain]);
+  }, [to, selectedChainId]);
 
-  const getApiKey = () => {
-    return selectedChain === 'optimism-sepolia'
-      ? process.env.NEXT_PUBLIC_OPTIMISM_ETHERSCAN_API_KEY
-      : process.env.NEXT_PUBLIC_ARBITRUM_ETHERSCAN_API_KEY;
+  const getApiKey = (chainId: number) => {
+    const config = chainConfigs[chainId];
+    return config?.etherscanApiKey;
   };
 
-  const getApiUrl = () => {
-    return selectedChain === 'optimism-sepolia'
-      ? 'https://api-sepolia-optimistic.etherscan.io/api'
-      : 'https://api-sepolia.arbiscan.io/api';
+  const getApiUrl = (chainId: number) => {
+    const config = chainConfigs[chainId];
+    return config?.etherscanApiUrl;
   };
 
   const checkIfProxy = async (address: Address) => {
     setIsLoading(true);
-    const apiKey = getApiKey();
-    const apiUrl = getApiUrl();
+    const apiKey = getApiKey(selectedChainId);
+    const apiUrl = getApiUrl(selectedChainId);
+
+    if (!apiKey || !apiUrl) {
+      toast.error('Smart mode not supported for this chain');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -92,8 +96,14 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
   };
 
   const fetchABI = async (address: Address) => {
-    const apiKey = getApiKey();
-    const apiUrl = getApiUrl();
+    const apiKey = getApiKey(selectedChainId);
+    const apiUrl = getApiUrl(selectedChainId);
+
+    if (!apiKey || !apiUrl) {
+      toast.error('Smart mode not supported for this chain');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -167,11 +177,7 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
   };
 
   const getExplorerLink = (address: string) => {
-    const chainId =
-      selectedChain === 'optimism-sepolia'
-        ? optimismSepolia.id
-        : arbitrumSepolia.id;
-    return chainIdToAddressExplorer(chainId, address);
+    return chainIdToAddressExplorer(selectedChainId, address);
   };
 
   return (

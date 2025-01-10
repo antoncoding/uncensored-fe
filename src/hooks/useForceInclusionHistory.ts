@@ -9,6 +9,8 @@ import {
 import { isAddress } from 'viem';
 import { chainConfigs, uncensoredSDK } from '@/config/chainConfig';
 import { sepolia } from 'viem/chains';
+import { L1_CHAIN } from '@/config/environment';
+import { alchemyUrls } from '@/lib/constants/wagmiConfig';
 
 export enum TransactionStatus {
   SUCCEEDED = 'SUCCEEDED',
@@ -35,14 +37,6 @@ export interface L1DepositHistory {
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const getL1RpcUrl = () => {
-  const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
-  if (alchemyKey) {
-    return `https://eth-sepolia.g.alchemy.com/v2/${alchemyKey}`;
-  }
-  return process.env.NEXT_PUBLIC_L1_RPC_URL;
-};
 
 const processEventsInBatches = async (
   events: any[],
@@ -127,7 +121,7 @@ export function useForceInclusionHistory(address: string) {
         setIsLoading(true);
         setError(null);
 
-        const l1RpcUrl = getL1RpcUrl();
+        const l1RpcUrl = alchemyUrls[L1_CHAIN.id];
         if (!l1RpcUrl) {
           throw new Error('L1 RPC URL not configured');
         }

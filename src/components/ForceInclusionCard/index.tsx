@@ -404,7 +404,7 @@ const ForceInclusionCard: React.FC = () => {
           <ModalBody>
             <SmartModeInput
               to={to as Address}
-              selectedChain={selectedChain}
+              selectedChainId={l2ChainId}
               onDataGenerated={handleDataGenerated}
             />
           </ModalBody>

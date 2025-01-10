@@ -19,6 +19,8 @@ export interface ChainConfig {
   maxWaitTime?: number;
   logo: string;
   explorerUrl: string;
+  etherscanApiUrl?: string;
+  etherscanApiKey?: string;
 }
 
 // Optimism Configurations
@@ -30,6 +32,8 @@ export const opMainnetConfig: ChainConfig = {
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/op.png',
   explorerUrl: 'https://optimistic.etherscan.io',
+  etherscanApiUrl: 'https://api-optimistic.etherscan.io/api',
+  etherscanApiKey: process.env.NEXT_PUBLIC_OPTIMISM_ETHERSCAN_API_KEY,
 };
 
 export const opSepoliaConfig: ChainConfig = {
@@ -40,6 +44,8 @@ export const opSepoliaConfig: ChainConfig = {
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/op.png',
   explorerUrl: 'https://sepolia-optimism.etherscan.io',
+  etherscanApiUrl: 'https://api-sepolia-optimistic.etherscan.io/api',
+  etherscanApiKey: process.env.NEXT_PUBLIC_OPTIMISM_ETHERSCAN_API_KEY,
 };
 
 // Base Configurations
@@ -51,6 +57,8 @@ export const baseMainnetConfig: ChainConfig = {
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/base.png',
   explorerUrl: base.blockExplorers.default.url,
+  etherscanApiUrl: 'https://api.basescan.org/api',
+  etherscanApiKey: process.env.NEXT_PUBLIC_BASE_ETHERSCAN_API_KEY,
 };
 
 export const baseSepoliaConfig: ChainConfig = {
@@ -61,6 +69,8 @@ export const baseSepoliaConfig: ChainConfig = {
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/base.png',
   explorerUrl: baseSepolia.blockExplorers.default.url,
+  etherscanApiUrl: 'https://api-sepolia.basescan.org/api',
+  etherscanApiKey: process.env.NEXT_PUBLIC_BASE_ETHERSCAN_API_KEY,
 };
 
 export const inkSepoliaConfig: ChainConfig = {
