@@ -1,4 +1,12 @@
-import { Chain, optimismSepolia, optimism, base, baseSepolia } from 'viem/chains';
+import {
+  Chain,
+  optimismSepolia,
+  optimism,
+  base,
+  baseSepolia,
+  ink,
+  inkSepolia,
+} from 'viem/chains';
 import { isTestnet } from './environment';
 import { UncensoredSDK, AdapterType } from '@rollup-uncensored/sdk';
 import { Address } from 'viem';
@@ -21,7 +29,7 @@ export const opMainnetConfig: ChainConfig = {
   isOpstack: true,
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/op.png',
-  explorerUrl: 'https://optimistic.etherscan.io'
+  explorerUrl: 'https://optimistic.etherscan.io',
 };
 
 export const opSepoliaConfig: ChainConfig = {
@@ -31,7 +39,7 @@ export const opSepoliaConfig: ChainConfig = {
   isOpstack: true,
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/op.png',
-  explorerUrl: 'https://sepolia-optimism.etherscan.io'
+  explorerUrl: 'https://sepolia-optimism.etherscan.io',
 };
 
 // Base Configurations
@@ -42,7 +50,7 @@ export const baseMainnetConfig: ChainConfig = {
   isOpstack: true,
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/base.png',
-  explorerUrl: 'https://basescan.org'
+  explorerUrl: base.blockExplorers.default.url,
 };
 
 export const baseSepoliaConfig: ChainConfig = {
@@ -52,7 +60,27 @@ export const baseSepoliaConfig: ChainConfig = {
   isOpstack: true,
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/base.png',
-  explorerUrl: 'https://sepolia.basescan.org'
+  explorerUrl: baseSepolia.blockExplorers.default.url,
+};
+
+export const inkSepoliaConfig: ChainConfig = {
+  portalAddress: '0x5c1d29c6c9c8b0800692acc95d700bcb4966a1d7',
+  startBlock: 4370901,
+  chain: inkSepolia,
+  isOpstack: true,
+  maxWaitTime: 12 * 3600, // 12 hours
+  logo: '/img/ink.png',
+  explorerUrl: inkSepolia.blockExplorers.default.url,
+};
+
+export const inkConfig: ChainConfig = {
+  portalAddress: '0x5d66c1782664115999c47c9fa5cd031f495d3e4f',
+  startBlock: 21344310,
+  chain: ink,
+  isOpstack: true,
+  maxWaitTime: 12 * 3600, // 12 hours
+  logo: '/img/ink.png',
+  explorerUrl: ink.blockExplorers.default.url,
 };
 
 // Chain Configurations Map
@@ -60,21 +88,26 @@ export const chainConfigs: Record<number, ChainConfig> = isTestnet
   ? {
       [optimismSepolia.id]: opSepoliaConfig,
       [baseSepolia.id]: baseSepoliaConfig,
+      [inkSepolia.id]: inkSepoliaConfig,
     }
   : {
       [optimism.id]: opMainnetConfig,
       [base.id]: baseMainnetConfig,
+      [ink.id]: inkConfig,
     };
 
 // Initialize SDK with all supported chains
-const sdkConfig = Object.entries(chainConfigs).reduce((acc, [chainId, config]) => {
-  if (config.isOpstack) {
-    acc[Number(chainId)] = {
-      type: AdapterType.OPStack,
-      optimismPortalAddress: config.portalAddress,
-    };
-  }
-  return acc;
-}, {} as Record<number, { type: AdapterType, optimismPortalAddress: Address }>);
+const sdkConfig = Object.entries(chainConfigs).reduce(
+  (acc, [chainId, config]) => {
+    if (config.isOpstack) {
+      acc[Number(chainId)] = {
+        type: AdapterType.OPStack,
+        optimismPortalAddress: config.portalAddress,
+      };
+    }
+    return acc;
+  },
+  {} as Record<number, { type: AdapterType; optimismPortalAddress: Address }>
+);
 
 export const uncensoredSDK = new UncensoredSDK(sdkConfig);

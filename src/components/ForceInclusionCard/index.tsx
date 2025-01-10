@@ -36,11 +36,11 @@ import Image from 'next/image';
 import { optimism } from 'viem/chains';
 
 // Get supported chains from chainConfigs
-const chains = Object.values(chainConfigs).map(config => ({
+const chains = Object.values(chainConfigs).map((config) => ({
   key: config.chain.name.toLowerCase().replace(' ', '-'),
   name: config.chain.name,
   chainId: config.chain.id,
-  logo: config.logo
+  logo: config.logo,
 }));
 
 const ForceInclusionCard: React.FC = () => {
@@ -70,7 +70,7 @@ const ForceInclusionCard: React.FC = () => {
   const l2ChainId = useMemo(
     () =>
       chains.find((chain) => chain.key === selectedChain)?.chainId ||
-    optimism.id,
+      optimism.id,
     [selectedChain]
   );
 
@@ -91,14 +91,13 @@ const ForceInclusionCard: React.FC = () => {
     isLoading: isL2Loading,
     isSuccess: isL2Success,
     isError: isL2Error,
-    error: l2Error,
   } = useWaitForTransactionReceipt({
     hash: l2TxHash,
     chainId: l2ChainId,
     query: {
       enabled: !!l2TxHash && isL1Success,
       retry: true,
-      refetchInterval: 5_000
+      refetchInterval: 5_000,
     },
   });
 

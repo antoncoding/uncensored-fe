@@ -1,11 +1,4 @@
-import {
-  arbitrum,
-  arbitrumSepolia,
-  mainnet,
-  optimism,
-  optimismSepolia,
-  sepolia,
-} from 'viem/chains';
+import { mainnet, sepolia } from 'viem/chains';
 import { isTestnet, L1_CHAIN } from '@/config/environment';
 import { chainConfigs } from '@/config/chainConfig';
 
