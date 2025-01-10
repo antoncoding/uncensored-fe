@@ -133,6 +133,7 @@ export const wagmiConfig = getDefaultConfig({
     optimismSepolia,
     arbitrumSepolia,
     sepolia,
+    baseSepolia,
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [sepolia] : []),
   ],
   transports: {
@@ -143,6 +144,7 @@ export const wagmiConfig = getDefaultConfig({
     [optimismSepolia.id]: getTransport(optimismSepolia),
     [arbitrumSepolia.id]: getTransport(arbitrumSepolia),
     [sepolia.id]: getTransport(sepolia),
+    [baseSepolia.id]: getTransport(baseSepolia),
   },
   ssr: true, // If your dApp uses server side rendering (SSR)
 });

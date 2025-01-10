@@ -98,9 +98,11 @@ const ForceInclusionCard: React.FC = () => {
     query: {
       enabled: !!l2TxHash && isL1Success,
       retry: true,
-      refetchInterval: 20_000
+      refetchInterval: 5_000
     },
   });
+
+  console.log('l2 hash', l2TxHash);
 
   /**
    * When L1 transaction is successfully sent to the network
