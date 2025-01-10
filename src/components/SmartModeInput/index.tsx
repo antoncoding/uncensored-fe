@@ -69,7 +69,7 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
     const apiUrl = getApiUrl(selectedChainId);
 
     if (!apiKey || !apiUrl) {
-      toast.error('Smart mode not supported for this chain');
+      toast.info('Etherscan API not supported for this chain');
       setIsLoading(false);
       return;
     }
@@ -100,7 +100,6 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
     const apiUrl = getApiUrl(selectedChainId);
 
     if (!apiKey || !apiUrl) {
-      toast.error('Smart mode not supported for this chain');
       setIsLoading(false);
       return;
     }
