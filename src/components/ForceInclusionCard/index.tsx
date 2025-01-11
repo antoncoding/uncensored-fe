@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import {
   Card,
@@ -17,7 +19,6 @@ import {
   Tooltip,
 } from '@nextui-org/react';
 import { parseEther } from 'ethers';
-import { UncensoredSDK } from '@rollup-uncensored/sdk';
 import {
   useChainId,
   useSendTransaction,
@@ -25,26 +26,29 @@ import {
   useWaitForTransactionReceipt,
 } from 'wagmi';
 import { Address, isAddress } from 'viem';
-import { optimismSepolia, sepolia } from 'viem/chains';
 import { toast } from 'react-toastify';
 import { chainIdToExplorer } from '@/utils/chains';
 import SmartModeInput from '../SmartModeInput';
-import { chainConfigs } from '@/config/chainConfig';
+import { chainConfigs, uncensoredSDK } from '@/config/chainConfig';
 import { IoTimeOutline } from 'react-icons/io5';
+import { L1_CHAIN } from '@/config/environment';
+import Image from 'next/image';
+import { optimism } from 'viem/chains';
 
-const uncensored = new UncensoredSDK();
-
-const chains = [
-  { key: 'optimism-sepolia', name: 'Optimism Sepolia', chainId: 11155420 },
-  { key: 'arbitrum-sepolia', name: 'Arbitrum Sepolia', chainId: 421614 },
-];
+// Get supported chains from chainConfigs
+const chains = Object.values(chainConfigs).map((config) => ({
+  key: config.chain.name.toLowerCase().replace(' ', '-'),
+  name: config.chain.name,
+  chainId: config.chain.id,
+  logo: config.logo,
+}));
 
 const ForceInclusionCard: React.FC = () => {
-  const [selectedChain, setSelectedChain] =
-    useState<string>('optimism-sepolia');
+  const [selectedChain, setSelectedChain] = useState<string>(
+    chains[0]?.key || ''
+  );
 
-  // todo: make this dynamic in the future
-  const l1ChainId = sepolia.id;
+  const l1ChainId = L1_CHAIN.id;
 
   const [value, setValue] = useState<string>('');
   const [data, setData] = useState<string>('');
@@ -66,7 +70,7 @@ const ForceInclusionCard: React.FC = () => {
   const l2ChainId = useMemo(
     () =>
       chains.find((chain) => chain.key === selectedChain)?.chainId ||
-      optimismSepolia.id,
+      optimism.id,
     [selectedChain]
   );
 
@@ -92,6 +96,8 @@ const ForceInclusionCard: React.FC = () => {
     chainId: l2ChainId,
     query: {
       enabled: !!l2TxHash && isL1Success,
+      retry: true,
+      refetchInterval: 5_000,
     },
   });
 
@@ -109,7 +115,6 @@ const ForceInclusionCard: React.FC = () => {
   // Handle L1 transaction status
   useEffect(() => {
     if (!l1TxHash) return;
-    console.log('l1 receipt', l1Receipt);
     if (isL1Success) {
       toast.update('l1-transaction-confirmation', {
         render: (
@@ -127,7 +132,7 @@ const ForceInclusionCard: React.FC = () => {
           window.open(chainIdToExplorer(l1ChainId, l1TxHash), '_blank');
         },
       });
-      const l2Hashes = uncensored.getL2TxHashes(l1Receipt, l2ChainId);
+      const l2Hashes = uncensoredSDK.getL2TxHashes(l1Receipt, l2ChainId);
       if (l2Hashes.length > 0) {
         const l2Hash = l2Hashes[0];
         setL2TxHash(l2Hash);
@@ -232,8 +237,8 @@ const ForceInclusionCard: React.FC = () => {
   }, [isL2Success, isL2Loading, l2TxHash, isL2Error, l2ChainId]);
 
   const forceSendTx = async () => {
-    if (chainId !== sepolia.id) {
-      switchChain({ chainId: sepolia.id });
+    if (chainId !== L1_CHAIN.id) {
+      switchChain({ chainId: L1_CHAIN.id });
       toast.info('Switched to Sepolia, click again to send');
       return;
     }
@@ -245,14 +250,14 @@ const ForceInclusionCard: React.FC = () => {
 
     try {
       const valueInWei = value ? parseEther(value) : BigInt(0);
-      const l1Tx = uncensored.transformTransaction({
+      const l1Tx = uncensoredSDK.transformTransaction({
         to: to as `0x${string}`,
         value: valueInWei,
         data,
         gasLimit: gasLimit,
         chainId:
           chains.find((chain) => chain.key === selectedChain)?.chainId ||
-          optimismSepolia.id,
+          optimism.id,
       });
 
       sendTransaction(
@@ -260,7 +265,7 @@ const ForceInclusionCard: React.FC = () => {
           to: l1Tx.to,
           value: l1Tx.value,
           data: l1Tx.data as `0x${string}`,
-          chainId: sepolia.id,
+          chainId: L1_CHAIN.id,
         },
         {
           onSuccess: onL1Success,
@@ -312,7 +317,15 @@ const ForceInclusionCard: React.FC = () => {
                   key={chain.key}
                   onClick={() => setSelectedChain(chain.key)}
                 >
-                  {chain.name}
+                  <div className="flex items-center">
+                    <Image
+                      src={chain.logo}
+                      alt={chain.name}
+                      width={20}
+                      height={20}
+                    />
+                    <span className="ml-2">{chain.name}</span>
+                  </div>
                 </DropdownItem>
               ))}
             </DropdownMenu>
@@ -391,7 +404,7 @@ const ForceInclusionCard: React.FC = () => {
           <ModalBody>
             <SmartModeInput
               to={to as Address}
-              selectedChain={selectedChain}
+              selectedChainId={l2ChainId}
               onDataGenerated={handleDataGenerated}
             />
           </ModalBody>

@@ -7,11 +7,10 @@ import {
   Chain,
 } from 'viem';
 import { isAddress } from 'viem';
-import { chainConfigs } from '@/config/chainConfig';
+import { chainConfigs, uncensoredSDK } from '@/config/chainConfig';
 import { sepolia } from 'viem/chains';
-import { UncensoredSDK } from '@rollup-uncensored/sdk';
-
-const uncensored = new UncensoredSDK();
+import { L1_CHAIN } from '@/config/environment';
+import { alchemyUrls } from '@/lib/constants/wagmiConfig';
 
 export enum TransactionStatus {
   SUCCEEDED = 'SUCCEEDED',
@@ -39,14 +38,6 @@ export interface L1DepositHistory {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const getL1RpcUrl = () => {
-  const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
-  if (alchemyKey) {
-    return `https://eth-sepolia.g.alchemy.com/v2/${alchemyKey}`;
-  }
-  return process.env.NEXT_PUBLIC_L1_RPC_URL;
-};
-
 const processEventsInBatches = async (
   events: any[],
   l1Client: any,
@@ -68,7 +59,7 @@ const processEventsInBatches = async (
         })) as TransactionReceipt;
 
         // get l2 tx and status
-        const l2TxHashes = uncensored.getL2TxHashes(receipt, chainId);
+        const l2TxHashes = uncensoredSDK.getL2TxHashes(receipt, chainId);
         const l2TxHash = l2TxHashes[0];
 
         let l2Status: TransactionStatus | undefined;
@@ -130,7 +121,7 @@ export function useForceInclusionHistory(address: string) {
         setIsLoading(true);
         setError(null);
 
-        const l1RpcUrl = getL1RpcUrl();
+        const l1RpcUrl = alchemyUrls[L1_CHAIN.id];
         if (!l1RpcUrl) {
           throw new Error('L1 RPC URL not configured');
         }

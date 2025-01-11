@@ -44,28 +44,34 @@ import {
   arbitrum,
   arbitrumSepolia,
   base,
+  baseSepolia,
   mainnet,
   optimism,
   optimismSepolia,
   sepolia,
+  ink,
+  inkSepolia,
 } from 'wagmi/chains';
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_ID || '';
 const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
 
-const getTransport = (chain: any) => {
+export const alchemyUrls: { [key: number]: string } = {
+  [mainnet.id]: `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+  [optimism.id]: `https://opt-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+  [arbitrum.id]: `https://arb-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+  [base.id]: `https://base-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+  [ink.id]: `https://ink-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+  //
+  [optimismSepolia.id]: `https://opt-sepolia.g.alchemy.com/v2/${alchemyKey}`,
+  [arbitrumSepolia.id]: `https://arb-sepolia.g.alchemy.com/v2/${alchemyKey}`,
+  [sepolia.id]: `https://eth-sepolia.g.alchemy.com/v2/${alchemyKey}`,
+  [baseSepolia.id]: `https://base-sepolia.g.alchemy.com/v2/${alchemyKey}`,
+  [inkSepolia.id]: `https://ink-sepolia.g.alchemy.com/v2/${alchemyKey}`,
+};
+
+export const getTransport = (chain: any) => {
   if (!alchemyKey) return http();
-
-  const alchemyUrls: { [key: number]: string } = {
-    [mainnet.id]: `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}`,
-    [optimism.id]: `https://opt-mainnet.g.alchemy.com/v2/${alchemyKey}`,
-    [arbitrum.id]: `https://arb-mainnet.g.alchemy.com/v2/${alchemyKey}`,
-    [base.id]: `https://base-mainnet.g.alchemy.com/v2/${alchemyKey}`,
-    [optimismSepolia.id]: `https://opt-sepolia.g.alchemy.com/v2/${alchemyKey}`,
-    [arbitrumSepolia.id]: `https://arb-sepolia.g.alchemy.com/v2/${alchemyKey}`,
-    [sepolia.id]: `https://eth-sepolia.g.alchemy.com/v2/${alchemyKey}`,
-  };
-
   return http(alchemyUrls[chain.id] || undefined);
 };
 
@@ -130,6 +136,9 @@ export const wagmiConfig = getDefaultConfig({
     optimismSepolia,
     arbitrumSepolia,
     sepolia,
+    baseSepolia,
+    ink,
+    inkSepolia,
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [sepolia] : []),
   ],
   transports: {
@@ -140,6 +149,9 @@ export const wagmiConfig = getDefaultConfig({
     [optimismSepolia.id]: getTransport(optimismSepolia),
     [arbitrumSepolia.id]: getTransport(arbitrumSepolia),
     [sepolia.id]: getTransport(sepolia),
+    [baseSepolia.id]: getTransport(baseSepolia),
+    [ink.id]: getTransport(ink),
+    [inkSepolia.id]: getTransport(inkSepolia),
   },
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
