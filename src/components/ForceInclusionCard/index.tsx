@@ -9,6 +9,7 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  DropdownSection,
   Textarea,
   Modal,
   ModalContent,
@@ -37,6 +38,8 @@ import { L1_CHAIN } from '@/config/environment';
 import { CiWarning } from 'react-icons/ci';
 import AddNetworkModal from '../Setting/AddNetworkModal';
 import { uncensoredSDK, getAllChainConfigs } from '@/config/chainConfig';
+import { TbCircleLetterC } from "react-icons/tb";
+
 
 // Get supported chains from chainConfigs
 
@@ -363,33 +366,50 @@ const ForceInclusionCard: React.FC = () => {
                 selectedKeys={new Set([l2ChainId])}
                 onSelectionChange={(keys) => {
                   const selected = Array.from(keys)[0] as string;
-                  console.log('selected', selected);
-                  setL2ChainId(Number(selected));
+                  if (selected !== 'add-network') { 
+                    setL2ChainId(Number(selected));
+                  }
+                }}
+                className="p-3"
+                itemClasses={{
+                  base: [
+                    "rounded-md",
+                    "text-default-500",
+                    "transition-opacity",
+                    "data-[hover=true]:text-foreground",
+                    "data-[hover=true]:bg-default-100",
+                    "dark:data-[hover=true]:bg-default-50",
+                    "data-[selectable=true]:focus:bg-default-50",
+                    "data-[pressed=true]:opacity-70",
+                    "data-[focus-visible=true]:ring-default-500",
+                  ],
                 }}
               >
-                {Object.values(chains).map((chain) => (
-                  <DropdownItem key={chain.chainId}>
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src={chain.logo}
-                        alt={chain.name}
-                        width={24}
-                        height={24}
-                      />
-                      {chain.name}
-                    </div>
-                  </DropdownItem>
-                ))}
-                <DropdownItem
-                  key="add-network"
-                  className="text-primary"
-                  onClick={() => setIsAddNetworkOpen(true)}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">+</span>
+                <DropdownSection showDivider aria-label="Available Networks">
+                  {Object.values(chains).map((chain) => (
+                    <DropdownItem key={chain.chainId}>
+                      <div className="flex items-center gap-2">
+                        {chain.logo ? <Image
+                          src={chain.logo}
+                          alt={chain.name}
+                          width={24}
+                          height={24}
+                        /> : <TbCircleLetterC /> }
+                        {chain.name}
+                      </div>
+                    </DropdownItem>
+                  ))}
+                </DropdownSection>
+                <DropdownSection aria-label="Actions">
+                  <DropdownItem
+                    key="add-network"
+                    className="text-primary"
+                    onClick={() => setIsAddNetworkOpen(true)}
+                    endContent={<span className="text-xl">+</span>}
+                  >
                     Add Network
-                  </div>
-                </DropdownItem>
+                  </DropdownItem>
+                </DropdownSection>
               </DropdownMenu>
             </Dropdown>
           </div>
