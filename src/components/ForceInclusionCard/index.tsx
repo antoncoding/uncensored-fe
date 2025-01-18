@@ -17,7 +17,6 @@ import {
   ModalFooter,
   useDisclosure,
   Tooltip,
-  LoadingSpinner,
 } from '@nextui-org/react';
 import { parseEther } from 'ethers';
 import {
@@ -456,12 +455,6 @@ const ForceInclusionCard: React.FC = () => {
               onChange={(e) => setGasLimit(e.target.value)}
             />
           </div>
-
-          {(isL1Loading || isL2Loading) && (
-            <div className="flex-1 flex items-start justify-center pt-12">
-              <LoadingSpinner />
-            </div>
-          )}
 
           {(isL1Error || isL2Error) && (
             <div className="flex items-center gap-2 p-4 bg-red-100 border border-red-300 rounded-lg text-red-700">
