@@ -32,7 +32,7 @@ import { chainIdToExplorer } from '@/utils/chains';
 import SmartModeInput from '../SmartModeInput';
 import { chainConfigs, uncensoredSDK } from '@/config/chainConfig';
 import { IoTimeOutline } from 'react-icons/io5';
-import { BsQuestionCircle } from "react-icons/bs";
+import { BsQuestionCircle } from 'react-icons/bs';
 import Image from 'next/image';
 import { optimism } from 'viem/chains';
 import { L1_CHAIN } from '@/config/environment';
@@ -305,7 +305,10 @@ const ForceInclusionCard: React.FC = () => {
               <h3 className="text-sm ">Target L2 Chain</h3>
               <Tooltip content="Select the L2 chain where you want to include this transaction">
                 <button className="focus:outline-none">
-                  <BsQuestionCircle className="text-gray-400 hover:text-gray-600 transition-colors" size={14} />
+                  <BsQuestionCircle
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    size={14}
+                  />
                 </button>
               </Tooltip>
             </div>
@@ -316,7 +319,10 @@ const ForceInclusionCard: React.FC = () => {
                   className="capitalize"
                   startContent={
                     <Image
-                      src={chains.find((chain) => chain.key === selectedChain)?.logo || ''}
+                      src={
+                        chains.find((chain) => chain.key === selectedChain)
+                          ?.logo || ''
+                      }
                       alt="Chain Logo"
                       width={24}
                       height={24}
@@ -359,7 +365,10 @@ const ForceInclusionCard: React.FC = () => {
               <h3 className="text-sm ">To Address</h3>
               <Tooltip content="The contract address to call on L2">
                 <button className="focus:outline-none">
-                  <BsQuestionCircle className="text-gray-400 hover:text-gray-600 transition-colors" size={14} />
+                  <BsQuestionCircle
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    size={14}
+                  />
                 </button>
               </Tooltip>
             </div>
@@ -368,7 +377,9 @@ const ForceInclusionCard: React.FC = () => {
               type="text"
               value={to}
               onChange={(e) => setTo(e.target.value as Address)}
-              errorMessage={to && !to.startsWith('0x') ? 'Invalid address' : undefined}
+              errorMessage={
+                to && !to.startsWith('0x') ? 'Invalid address' : undefined
+              }
               isInvalid={!!(to && !to.startsWith('0x'))}
             />
           </div>
@@ -378,7 +389,10 @@ const ForceInclusionCard: React.FC = () => {
               <h3 className="text-sm ">Value (ETH)</h3>
               <Tooltip content="Amount of ETH to send with the transaction">
                 <button className="focus:outline-none">
-                  <BsQuestionCircle className="text-gray-400 hover:text-gray-600 transition-colors" size={14} />
+                  <BsQuestionCircle
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    size={14}
+                  />
                 </button>
               </Tooltip>
             </div>
@@ -395,7 +409,10 @@ const ForceInclusionCard: React.FC = () => {
               <h3 className="text-sm ">Transaction Data</h3>
               <Tooltip content="The calldata for the transaction. Use the ABI composer for smart contract interactions">
                 <button className="focus:outline-none">
-                  <BsQuestionCircle className="text-gray-400 hover:text-gray-600 transition-colors" size={14} />
+                  <BsQuestionCircle
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    size={14}
+                  />
                 </button>
               </Tooltip>
             </div>
@@ -403,7 +420,9 @@ const ForceInclusionCard: React.FC = () => {
               placeholder="0x"
               value={data}
               onChange={(e) => setData(e.target.value as `0x${string}`)}
-              errorMessage={data && !data.startsWith('0x') ? 'Invalid data' : undefined}
+              errorMessage={
+                data && !data.startsWith('0x') ? 'Invalid data' : undefined
+              }
               isInvalid={!!(data && !data.startsWith('0x'))}
             />
             <div className="mt-1">
@@ -423,7 +442,10 @@ const ForceInclusionCard: React.FC = () => {
               <h3 className="text-sm ">Gas Limit</h3>
               <Tooltip content="Maximum amount of gas that can be used for this transaction">
                 <button className="focus:outline-none">
-                  <BsQuestionCircle className="text-gray-400 hover:text-gray-600 transition-colors" size={14} />
+                  <BsQuestionCircle
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    size={14}
+                  />
                 </button>
               </Tooltip>
             </div>
@@ -445,17 +467,16 @@ const ForceInclusionCard: React.FC = () => {
             <div className="flex items-center gap-2 p-4 bg-red-100 border border-red-300 rounded-lg text-red-700">
               <CiWarning size={20} className="flex-shrink-0" />
               <span className="text-sm">
-                Error: {(isL1Error && l1Error.message) || (isL2Error && l2Error.message)}
+                Error:{' '}
+                {(isL1Error && l1Error.message) ||
+                  (isL2Error && l2Error.message)}
               </span>
             </div>
           )}
 
           {!isL1Loading && !isL2Loading && !isL1Error && !isL2Error && (
             <div className="flex justify-end gap-2">
-              <Button
-                color="primary"
-                onClick={forceSendTx}
-              >
+              <Button color="primary" onClick={forceSendTx}>
                 Submit
               </Button>
             </div>
@@ -465,11 +486,15 @@ const ForceInclusionCard: React.FC = () => {
             <div className="flex items-center justify-end gap-2 text-sm text-gray-500">
               <IoTimeOutline className="text-gray-400" size={16} />
               <span>
-                Max wait time: {chainConfigs[l2ChainId].maxWaitTime! / 3600} hours
+                Max wait time: {chainConfigs[l2ChainId].maxWaitTime! / 3600}{' '}
+                hours
               </span>
               <Tooltip content="Maximum time to wait for the transaction to be included on L2">
                 <button className="focus:outline-none">
-                  <BsQuestionCircle className="text-gray-400 hover:text-gray-600 transition-colors" size={14} />
+                  <BsQuestionCircle
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    size={14}
+                  />
                 </button>
               </Tooltip>
             </div>

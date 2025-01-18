@@ -14,9 +14,9 @@ module.exports = {
         inter: ['var(--font-inter)'],
       },
       fontWeight: {
-        light: '300',     // maps to font-light
-        semibold: '600',  // maps to font-semibold
-        bold: '700',      // maps to font-semibold
+        light: '300', // maps to font-light
+        semibold: '600', // maps to font-semibold
+        bold: '700', // maps to font-semibold
       },
       colors: {
         primary: '#0ea5e9',

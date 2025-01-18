@@ -3,8 +3,14 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
 import Link from 'next/link';
 import { IoSettingsOutline } from 'react-icons/io5';
-import { FaGithub } from "react-icons/fa"
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from "@nextui-org/react";
+import { FaGithub } from 'react-icons/fa';
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  Button,
+} from '@nextui-org/react';
 
 import { useAccount } from 'wagmi';
 import SettingsModal from './SettingsModal';
@@ -29,10 +35,7 @@ const Navbar = () => {
         </Link>
         <Dropdown>
           <DropdownTrigger>
-            <Button 
-              variant="light"
-              className='text-base'
-            >
+            <Button variant="light" className="text-base">
               More
             </Button>
           </DropdownTrigger>
@@ -44,7 +47,11 @@ const Navbar = () => {
               </div>
             </DropdownItem>
             <DropdownItem>
-              <Link href="https://github.com/rollup-fortress/uncensored" target="_blank" className="flex items-center gap-2">
+              <Link
+                href="https://github.com/rollup-fortress/uncensored"
+                target="_blank"
+                className="flex items-center gap-2"
+              >
                 <FaGithub size={18} />
                 SDK
               </Link>

@@ -10,7 +10,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { useAccount } from 'wagmi';
 import { Button, Card, Tooltip } from '@nextui-org/react';
 import { IoMdRefresh } from 'react-icons/io';
-import { BsQuestionCircle } from "react-icons/bs";
+import { BsQuestionCircle } from 'react-icons/bs';
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -40,7 +40,10 @@ export default function HistoryPage() {
                   <h3 className="text-sm">Connected Account</h3>
                   <Tooltip content="The currently connected wallet address">
                     <button className="focus:outline-none">
-                      <BsQuestionCircle className="text-gray-400 hover:text-gray-600 transition-colors" size={14} />
+                      <BsQuestionCircle
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        size={14}
+                      />
                     </button>
                   </Tooltip>
                 </div>
@@ -55,9 +58,7 @@ export default function HistoryPage() {
                 </Button>
               </div>
               {connectedAddress && (
-                <div className="text-sm text-gray-500">
-                  {connectedAddress}
-                </div>
+                <div className="text-sm text-gray-500">{connectedAddress}</div>
               )}
             </div>
 
@@ -66,13 +67,17 @@ export default function HistoryPage() {
                 <h3 className="text-sm">Recent Transactions</h3>
                 <Tooltip content="Force Inclusions in the last 5000 L1 blocks">
                   <button className="focus:outline-none">
-                    <BsQuestionCircle className="text-gray-400 hover:text-gray-600 transition-colors" size={14} />
+                    <BsQuestionCircle
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      size={14}
+                    />
                   </button>
                 </Tooltip>
               </div>
               {!isLoading && !error && (
                 <div className="text-sm text-gray-500">
-                  {histories.length} transaction{histories.length !== 1 ? 's' : ''}
+                  {histories.length} transaction
+                  {histories.length !== 1 ? 's' : ''}
                 </div>
               )}
             </div>

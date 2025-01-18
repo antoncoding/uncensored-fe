@@ -4,7 +4,7 @@ export const inter = localFont({
   src: [
     {
       path: '../fonts/Inter/static/Inter-Light.ttf',
-      weight: '300',  // Light weight is typically 300
+      weight: '300', // Light weight is typically 300
       style: 'normal',
     },
     {
