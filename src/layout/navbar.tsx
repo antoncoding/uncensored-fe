@@ -3,7 +3,8 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
 import Link from 'next/link';
 import { IoSettingsOutline } from 'react-icons/io5';
-import { LuHistory } from 'react-icons/lu';
+import { FaGithub } from "react-icons/fa"
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from "@nextui-org/react";
 
 import { useAccount } from 'wagmi';
 import SettingsModal from './SettingsModal';
@@ -19,20 +20,38 @@ const Navbar = () => {
           <Image src="/img/logo.png" alt="Logo" width={50} height={50} />
         </Link>
       </div>
-      <div className="ml-auto pr-4 flex items-center">
-        <ConnectButton />
+      <div className="ml-auto pr-4 flex items-center gap-4">
         <Link
           href={address ? `/history/${address}` : '#'}
-          className={`ml-4 ${!address ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'}`}
+          className={`${!address ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'}`}
         >
-          <LuHistory size={24} />
+          History
         </Link>
-        <div
-          className="ml-4 cursor-pointer hover:opacity-80"
-          onClick={() => setIsSettingsOpen(true)}
-        >
-          <IoSettingsOutline size={24} />
-        </div>
+        <Dropdown>
+          <DropdownTrigger>
+            <Button 
+              variant="light"
+              className='text-base'
+            >
+              More
+            </Button>
+          </DropdownTrigger>
+          <DropdownMenu aria-label="More actions">
+            <DropdownItem onClick={() => setIsSettingsOpen(true)}>
+              <div className="flex items-center gap-2">
+                <IoSettingsOutline size={18} />
+                Settings
+              </div>
+            </DropdownItem>
+            <DropdownItem>
+              <Link href="https://github.com/rollup-fortress/uncensored" target="_blank" className="flex items-center gap-2">
+                <FaGithub size={18} />
+                SDK
+              </Link>
+            </DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+        <ConnectButton showBalance={false} chainStatus={'none'} />
       </div>
       {isSettingsOpen && (
         <SettingsModal onClose={() => setIsSettingsOpen(false)} />

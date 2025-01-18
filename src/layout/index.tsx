@@ -3,11 +3,11 @@ import { ToastContainer } from 'react-toastify';
 
 //Importing Components
 import Navbar from './navbar';
-import Footer from './footer';
+import { inter } from '../config/fonts';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
-    <div className="wrapper">
+    <div className={`wrapper ${inter.className}`}>
       <Navbar />
       <main className="main px-0">{children}</main>
       <ToastContainer
@@ -21,7 +21,6 @@ export default function Layout({ children }: PropsWithChildren) {
         pauseOnHover
         theme="light"
       />
-      <Footer />
     </div>
   );
 }

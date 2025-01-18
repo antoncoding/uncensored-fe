@@ -55,7 +55,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider theme={theme}>
             <ThemeProvider attribute="data-theme">
-              <main className={`${inter.variable} font-sans`}>
+              <main className={`${inter.className}`}>
                 <Layout>
                   <Component {...pageProps} />
                 </Layout>
