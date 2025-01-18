@@ -7,10 +7,10 @@ import {
   Chain,
 } from 'viem';
 import { isAddress } from 'viem';
-import { chainConfigs, uncensoredSDK } from '@/config/chainConfig';
+import { getAllChainConfigs, uncensoredSDK } from '@/config/chainConfig';
 import { sepolia } from 'viem/chains';
 import { L1_CHAIN } from '@/config/environment';
-import { alchemyUrls } from '@/lib/constants/wagmiConfig';
+import { alchemyUrls, getTransport } from '@/lib/constants/wagmiConfig';
 
 export enum TransactionStatus {
   SUCCEEDED = 'SUCCEEDED',
@@ -138,15 +138,15 @@ export function useForceInclusionHistory(address: string) {
         const allHistories: L1DepositHistory[] = [];
 
         // Filter for OP Stack chains only
-        const opStackChains = Object.entries(chainConfigs).filter(
-          ([, config]) => config.isOpstack
+        const opStackChains = getAllChainConfigs().filter(
+          (chain) => chain.isOpstack
         );
 
         // Process each chain sequentially to avoid too many concurrent requests
-        for (const [chainId, config] of opStackChains) {
+        for (const config of opStackChains) {
+          console.log('fetching history for chainId', config.chainId)
           const l2Client = createPublicClient({
-            chain: config.chain,
-            transport: http(),
+            transport: getTransport(Number(config.chainId))
           });
 
           const latestBlockNumber = await l1Client.getBlockNumber();
@@ -167,7 +167,7 @@ export function useForceInclusionHistory(address: string) {
             events,
             l1Client,
             l2Client,
-            Number(chainId)
+            Number(config.chainId)
           );
 
           allHistories.push(...chainHistories);

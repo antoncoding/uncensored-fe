@@ -19,6 +19,7 @@ export interface ChainConfig {
   isOpstack?: boolean;
   maxWaitTime?: number;
   
+  rpcUrl?: string;
   logo?: string;
   explorerUrl?: string;
   etherscanApiUrl?: string;
