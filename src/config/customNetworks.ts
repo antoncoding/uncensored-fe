@@ -3,7 +3,6 @@ import storage from 'local-storage-fallback';
 
 const CUSTOM_NETWORKS_KEY = 'uncensored_custom_networks';
 
-
 export const getCustomNetworks = (): Record<number, ChainConfig> => {
   const stored = storage.getItem(CUSTOM_NETWORKS_KEY);
   if (!stored) return {};

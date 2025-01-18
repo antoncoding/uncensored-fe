@@ -38,7 +38,12 @@ const AddNetworkModal: React.FC<AddNetworkModalProps> = ({
       ...formData,
       chainId: parseInt(formData.chainId),
     });
-    setFormData({ name: '', chainId: '', optimismPortalAddress: '', rpcUrl: '' });
+    setFormData({
+      name: '',
+      chainId: '',
+      optimismPortalAddress: '',
+      rpcUrl: '',
+    });
     onClose();
   };
 
@@ -46,7 +51,9 @@ const AddNetworkModal: React.FC<AddNetworkModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalContent>
         <form onSubmit={handleSubmit}>
-          <ModalHeader className="font-normal text-2xl pt-4">Add Network</ModalHeader>
+          <ModalHeader className="font-normal text-2xl pt-4">
+            Add Network
+          </ModalHeader>
           <ModalBody>
             <div className="flex flex-col gap-4">
               <Input
@@ -77,7 +84,10 @@ const AddNetworkModal: React.FC<AddNetworkModalProps> = ({
                 placeholder="e.g., 0x..."
                 value={formData.optimismPortalAddress}
                 onChange={(e) =>
-                  setFormData({ ...formData, optimismPortalAddress: e.target.value })
+                  setFormData({
+                    ...formData,
+                    optimismPortalAddress: e.target.value,
+                  })
                 }
                 required
               />

@@ -1,5 +1,4 @@
 import {
-  Chain,
   optimismSepolia,
   optimism,
   base,
@@ -18,7 +17,7 @@ export interface ChainConfig {
   chainId: number;
   isOpstack?: boolean;
   maxWaitTime?: number;
-  
+
   rpcUrl?: string;
   logo?: string;
   explorerUrl?: string;
@@ -113,18 +112,15 @@ export const chainConfigs: Record<number, ChainConfig> = isTestnet
 
 export const getAllChainConfigs = () => {
   const customNetworks = getCustomNetworks();
-  return [
-    ...Object.values(customNetworks),
-    ...Object.values(chainConfigs),
-  ];
+  return [...Object.values(customNetworks), ...Object.values(chainConfigs)];
 };
 
-console.log('getAllChainConfigs', getAllChainConfigs())
+console.log('getAllChainConfigs', getAllChainConfigs());
 
 // Initialize SDK with all supported chains
 const getUncensoredSDK = () => {
   const sdkConfig = Object.entries(getAllChainConfigs()).reduce(
-    (acc, [_, config]) => {
+    (acc, [, config]) => {
       if (config.isOpstack) {
         acc[Number(config.chainId)] = {
           type: AdapterType.OPStack,
@@ -136,7 +132,7 @@ const getUncensoredSDK = () => {
     {} as Record<number, { type: AdapterType; optimismPortalAddress: Address }>
   );
 
-  console.log('sdkConfig', sdkConfig)
+  console.log('sdkConfig', sdkConfig);
 
   return new UncensoredSDK(sdkConfig);
 };

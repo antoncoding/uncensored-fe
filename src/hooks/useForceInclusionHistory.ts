@@ -4,7 +4,6 @@ import {
   http,
   parseAbiItem,
   TransactionReceipt,
-  Chain,
 } from 'viem';
 import { isAddress } from 'viem';
 import { getAllChainConfigs, uncensoredSDK } from '@/config/chainConfig';
@@ -144,9 +143,9 @@ export function useForceInclusionHistory(address: string) {
 
         // Process each chain sequentially to avoid too many concurrent requests
         for (const config of opStackChains) {
-          console.log('fetching history for chainId', config.chainId)
+          console.log('fetching history for chainId', config.chainId);
           const l2Client = createPublicClient({
-            transport: getTransport(Number(config.chainId))
+            transport: getTransport(Number(config.chainId)),
           });
 
           const latestBlockNumber = await l1Client.getBlockNumber();

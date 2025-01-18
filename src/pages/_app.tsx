@@ -24,8 +24,7 @@ import { inter } from '@/config/fonts';
 
 // Merge
 import merge from 'lodash.merge';
-import storage from 'local-storage-fallback' 
-
+import storage from 'local-storage-fallback';
 
 const theme = merge(lightTheme(), {
   colors: {

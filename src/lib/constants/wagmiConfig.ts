@@ -72,9 +72,8 @@ export const alchemyUrls: { [key: number]: string } = {
 };
 
 export const getTransport = (chainId: number) => {
+  console.log('getTransport with chainId', chainId);
 
-  console.log('getTransport with chainId', chainId)
-  
   if (alchemyUrls[chainId]) {
     return http(alchemyUrls[chainId]);
   }
@@ -155,10 +154,13 @@ export const wagmiConfig = getDefaultConfig({
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [sepolia] : []),
   ],
   transports: {
-    ...Object.values(getCustomNetworks()).reduce((acc, network) => ({
-      ...acc,
-      [network.chainId]: http(network.rpcUrl),
-    }), {}),
+    ...Object.values(getCustomNetworks()).reduce(
+      (acc, network) => ({
+        ...acc,
+        [network.chainId]: http(network.rpcUrl),
+      }),
+      {}
+    ),
     [mainnet.id]: getTransport(mainnet.id),
     [optimism.id]: getTransport(optimism.id),
     [arbitrum.id]: getTransport(arbitrum.id),

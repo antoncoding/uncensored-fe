@@ -3,7 +3,7 @@ import { Card, Switch, Button } from '@nextui-org/react';
 import AddNetworkModal from './AddNetworkModal';
 import { toast } from 'react-toastify';
 import { addCustomNetwork } from '@/config/customNetworks';
-import storage from 'local-storage-fallback'
+import storage from 'local-storage-fallback';
 
 const Settings = () => {
   const [theme, setTheme] = useState('light');
@@ -30,14 +30,13 @@ const Settings = () => {
     optimismPortalAddress: string;
     rpcUrl: string;
   }) => {
-    
     const completeConfig = {
       ...networkData,
       optimismPortalAddress: networkData.optimismPortalAddress as `0x${string}`,
       isOpstack: true,
       maxWaitTime: 12 * 3600, // 12 hours
-    }
-    
+    };
+
     addCustomNetwork(networkData.chainId, completeConfig);
     toast.success('Network added successfully!');
   };

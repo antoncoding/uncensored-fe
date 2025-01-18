@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   Card,
   Input,
@@ -32,14 +32,16 @@ import { chainIdToExplorer } from '@/utils/chains';
 import SmartModeInput from '../SmartModeInput';
 import { addCustomNetwork } from '@/config/customNetworks';
 import { IoTimeOutline } from 'react-icons/io5';
-import { BsQuestionCircle } from "react-icons/bs";
+import { BsQuestionCircle } from 'react-icons/bs';
 import Image from 'next/image';
 import { L1_CHAIN } from '@/config/environment';
 import { CiWarning } from 'react-icons/ci';
 import AddNetworkModal from '../Setting/AddNetworkModal';
-import { getAllChainConfigs, getSDKWithCurrentConfigs } from '@/config/chainConfig';
-import { TbCircleLetterC } from "react-icons/tb";
-
+import {
+  getAllChainConfigs,
+  getSDKWithCurrentConfigs,
+} from '@/config/chainConfig';
+import { TbCircleLetterC } from 'react-icons/tb';
 
 // Get supported chains from chainConfigs
 
@@ -47,7 +49,9 @@ const ForceInclusionCard: React.FC = () => {
   const [chains, setChains] = useState(getAllChainConfigs());
   const [l2ChainId, setL2ChainId] = useState<number>(chains[0]?.chainId || 0);
 
-  const selectedChain = Object.values(chains).find((chain) => chain.chainId === l2ChainId);
+  const selectedChain = Object.values(chains).find(
+    (chain) => chain.chainId === l2ChainId
+  );
   const l1ChainId = L1_CHAIN.id;
 
   const [value, setValue] = useState<string>('');
@@ -74,8 +78,6 @@ const ForceInclusionCard: React.FC = () => {
     optimismPortalAddress: string;
     rpcUrl: string;
   }) => {
-    
-
     const newConfig = {
       ...networkData,
       optimismPortalAddress: networkData.optimismPortalAddress as `0x${string}`,
@@ -284,7 +286,7 @@ const ForceInclusionCard: React.FC = () => {
         value: valueInWei,
         data,
         gasLimit: gasLimit,
-        chainId: l2ChainId
+        chainId: l2ChainId,
       });
 
       sendTransaction(
@@ -363,22 +365,22 @@ const ForceInclusionCard: React.FC = () => {
                 selectedKeys={new Set([l2ChainId])}
                 onSelectionChange={(keys) => {
                   const selected = Array.from(keys)[0] as string;
-                  if (selected !== 'add-network') { 
+                  if (selected !== 'add-network') {
                     setL2ChainId(Number(selected));
                   }
                 }}
                 className="p-3"
                 itemClasses={{
                   base: [
-                    "rounded-md",
-                    "text-default-500",
-                    "transition-opacity",
-                    "data-[hover=true]:text-foreground",
-                    "data-[hover=true]:bg-default-100",
-                    "dark:data-[hover=true]:bg-default-50",
-                    "data-[selectable=true]:focus:bg-default-50",
-                    "data-[pressed=true]:opacity-70",
-                    "data-[focus-visible=true]:ring-default-500",
+                    'rounded-md',
+                    'text-default-500',
+                    'transition-opacity',
+                    'data-[hover=true]:text-foreground',
+                    'data-[hover=true]:bg-default-100',
+                    'dark:data-[hover=true]:bg-default-50',
+                    'data-[selectable=true]:focus:bg-default-50',
+                    'data-[pressed=true]:opacity-70',
+                    'data-[focus-visible=true]:ring-default-500',
                   ],
                 }}
               >
@@ -386,12 +388,16 @@ const ForceInclusionCard: React.FC = () => {
                   {Object.values(chains).map((chain) => (
                     <DropdownItem key={chain.chainId}>
                       <div className="flex items-center gap-2">
-                        {chain.logo ? <Image
-                          src={chain.logo}
-                          alt={chain.name}
-                          width={24}
-                          height={24}
-                        /> : <TbCircleLetterC /> }
+                        {chain.logo ? (
+                          <Image
+                            src={chain.logo}
+                            alt={chain.name}
+                            width={24}
+                            height={24}
+                          />
+                        ) : (
+                          <TbCircleLetterC />
+                        )}
                         {chain.name}
                       </div>
                     </DropdownItem>
@@ -531,8 +537,7 @@ const ForceInclusionCard: React.FC = () => {
             <div className="flex items-center justify-end gap-2 text-sm text-gray-500">
               <IoTimeOutline className="text-gray-400" size={16} />
               <span>
-                Max wait time: {selectedChain?.maxWaitTime! / 3600}{' '}
-                hours
+                Max wait time: {selectedChain.maxWaitTime / 3600} hours
               </span>
               <Tooltip content="Maximum time to wait for the transaction to be included on L2">
                 <button className="focus:outline-none">
