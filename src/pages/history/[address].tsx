@@ -11,14 +11,14 @@ import { useAccount } from 'wagmi';
 import { Button, Card, Tooltip } from '@nextui-org/react';
 import { IoMdRefresh } from 'react-icons/io';
 import { BsQuestionCircle } from 'react-icons/bs';
+import { getAllChainConfigs } from '@/config/chainConfig';
 
 export default function HistoryPage() {
   const router = useRouter();
   const { address } = router.query;
   const { address: connectedAddress } = useAccount();
-  const { histories, isLoading, error, refresh } = useForceInclusionHistory(
-    address as string
-  );
+  
+  const { histories, isLoading, error, refresh } = useForceInclusionHistory(address as string);
 
   useEffect(() => {
     if (address && !isAddress(address as string)) {
@@ -113,4 +113,4 @@ export default function HistoryPage() {
       </div>
     </>
   );
-}
+};

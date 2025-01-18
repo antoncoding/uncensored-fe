@@ -29,23 +29,29 @@ import { Address, isAddress } from 'viem';
 import { toast } from 'react-toastify';
 import { chainIdToExplorer } from '@/utils/chains';
 import SmartModeInput from '../SmartModeInput';
-import { chainConfigs, uncensoredSDK } from '@/config/chainConfig';
+import { addCustomNetwork } from '@/config/customNetworks';
 import { IoTimeOutline } from 'react-icons/io5';
-import { BsQuestionCircle } from 'react-icons/bs';
+import { BsQuestionCircle } from "react-icons/bs";
 import Image from 'next/image';
 import { optimism } from 'viem/chains';
 import { L1_CHAIN } from '@/config/environment';
 import { CiWarning } from 'react-icons/ci';
+import AddNetworkModal from '../Setting/AddNetworkModal';
+import { uncensoredSDK, getAllChainConfigs } from '@/config/chainConfig';
 
 // Get supported chains from chainConfigs
-const chains = Object.values(chainConfigs).map((config) => ({
-  key: config.chain.name.toLowerCase().replace(' ', '-'),
-  name: config.chain.name,
-  chainId: config.chain.id,
-  logo: config.logo,
-}));
+const getChains = () => {
+  const configs = getAllChainConfigs();
+  return Object.values(configs).map((config) => ({
+    key: config.chainId.toString(),
+    name: config.name,
+    logo: config.logo ? config.logo : '/img/eth.png',
+    chainId: config.chainId,
+  }));
+};
 
 const ForceInclusionCard: React.FC = () => {
+  const [chains, setChains] = useState(getChains());
   const [selectedChain, setSelectedChain] = useState<string>(
     chains[0]?.key || ''
   );
@@ -67,6 +73,39 @@ const ForceInclusionCard: React.FC = () => {
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [isAddNetworkOpen, setIsAddNetworkOpen] = useState(false);
+
+  const handleAddNetwork = (networkData: {
+    name: string;
+    chainId: number;
+    optimismPortalAddress: string;
+    rpcUrl: string;
+  }) => {
+    
+
+    const newConfig = {
+      ...networkData,
+      optimismPortalAddress: networkData.optimismPortalAddress as `0x${string}`,
+      isOpstack: true,
+      maxWaitTime: 12 * 3600, // 12 hours
+    };
+
+    addCustomNetwork(networkData.chainId, newConfig);
+    setChains(getChains()); // Refresh chains list
+    toast.success('Network added successfully!');
+    setSelectedChain(networkData.chainId.toString());
+  };
+
+  // Refresh chains when custom networks change
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setChains(getChains());
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // fetch
   const l2ChainId = useMemo(
@@ -355,6 +394,16 @@ const ForceInclusionCard: React.FC = () => {
                     </div>
                   </DropdownItem>
                 ))}
+                <DropdownItem
+                  key="add-network"
+                  className="text-primary"
+                  onClick={() => setIsAddNetworkOpen(true)}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">+</span>
+                    Add Network
+                  </div>
+                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </div>
@@ -475,11 +524,11 @@ const ForceInclusionCard: React.FC = () => {
             </div>
           )}
 
-          {chainConfigs[l2ChainId]?.maxWaitTime && (
+          {chains.find((chain) => chain.key === selectedChain)?.maxWaitTime && (
             <div className="flex items-center justify-end gap-2 text-sm text-gray-500">
               <IoTimeOutline className="text-gray-400" size={16} />
               <span>
-                Max wait time: {chainConfigs[l2ChainId].maxWaitTime! / 3600}{' '}
+                Max wait time: {chains.find((chain) => chain.key === selectedChain)?.maxWaitTime! / 3600}{' '}
                 hours
               </span>
               <Tooltip content="Maximum time to wait for the transaction to be included on L2">
@@ -512,6 +561,12 @@ const ForceInclusionCard: React.FC = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <AddNetworkModal
+        isOpen={isAddNetworkOpen}
+        onClose={() => setIsAddNetworkOpen(false)}
+        onSubmit={handleAddNetwork}
+      />
     </div>
   );
 };

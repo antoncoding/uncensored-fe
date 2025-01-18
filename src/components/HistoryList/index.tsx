@@ -54,8 +54,8 @@ export default function HistoryList({ transactions }: Props) {
             {/* Left: Chain Logo */}
             <div className="flex-shrink-0 self-center">
               <Image
-                src={getChainLogo(tx.l2Chain.id)}
-                alt={tx.l2Chain.name}
+                src={getChainLogo(tx.l2ChainId)}
+                alt={`${tx.l2ChainId} logo`}
                 width={24}
                 height={24}
                 className="rounded-full"
@@ -71,7 +71,7 @@ export default function HistoryList({ transactions }: Props) {
                     <div className="flex gap-2">
                       Hash:
                       <Link
-                        href={`${chainIdToExplorer(tx.l2Chain.id, tx.l2TransactionHash)}`}
+                        href={`${chainIdToExplorer(tx.l2ChainId, tx.l2TransactionHash)}`}
                         isExternal
                         className="font-mono text-sm truncate"
                       >
@@ -84,7 +84,7 @@ export default function HistoryList({ transactions }: Props) {
 
                   <span className="ml-4 text-gray-500"> To </span>
                   <Link
-                    href={`${chainIdToAddressExplorer(tx.l2Chain.id, tx.to)}`}
+                    href={`${chainIdToAddressExplorer(tx.l2ChainId, tx.to)}`}
                     isExternal
                     className="font-mono text-sm truncate text-gray-600"
                   >

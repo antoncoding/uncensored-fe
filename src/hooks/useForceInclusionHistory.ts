@@ -33,7 +33,7 @@ export interface L1DepositHistory {
   l1TxFee: bigint;
   l2TransactionHash?: string;
   l2Status?: TransactionStatus;
-  l2Chain: Chain;
+  l2ChainId: number;
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -88,7 +88,7 @@ const processEventsInBatches = async (
           to: event.args.to,
           l2TransactionHash: l2TxHash,
           l2Status,
-          l2Chain: chainConfigs[chainId].chain,
+          l2ChainId: chainId,
           l1TxFee: receipt.gasUsed * receipt.effectiveGasPrice,
         };
       })
@@ -154,7 +154,7 @@ export function useForceInclusionHistory(address: string) {
           const fromBlock = latestBlockNumber - EVENT_QUERY_BLOCK_RANGE;
 
           const events = await l1Client.getLogs({
-            address: config.portalAddress,
+            address: config.optimismPortalAddress,
             event: DEPOSIT_EVENT,
             args: {
               from: address,

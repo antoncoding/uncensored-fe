@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Switch } from '@nextui-org/react';
+import { Card, Switch, Button } from '@nextui-org/react';
+import AddNetworkModal from './AddNetworkModal';
+import { toast } from 'react-toastify';
+import { Chain } from 'viem';
+import { addCustomNetwork } from '@/config/customNetworks';
 
 const Settings = () => {
   const [theme, setTheme] = useState('light');
+  const [isAddNetworkOpen, setIsAddNetworkOpen] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -19,6 +24,24 @@ const Settings = () => {
     localStorage.setItem('theme', newTheme);
   };
 
+  const handleAddNetwork = (networkData: {
+    name: string;
+    chainId: number;
+    optimismPortalAddress: string;
+    rpcUrl: string;
+  }) => {
+    
+    const completeConfig = {
+      ...networkData,
+      optimismPortalAddress: networkData.optimismPortalAddress as `0x${string}`,
+      isOpstack: true,
+      maxWaitTime: 12 * 3600, // 12 hours
+    }
+    
+    addCustomNetwork(networkData.chainId, completeConfig);
+    toast.success('Network added successfully!');
+  };
+
   return (
     <Card className="bg-card p-8 w-full max-w-lg shadow-none">
       <h2 className="text-2xl mb-4">Settings</h2>
@@ -33,12 +56,26 @@ const Settings = () => {
           Switch to {theme === 'light' ? 'Dark' : 'Light'} Theme
         </Switch>
       </div>
-      {/* Future settings sections can be added here */}
 
       <div className="mb-6">
-        <h2 className="text mb-2">RPC Providers</h2>
-        <p className="text-sm text-gray-500 mb-2">Coming soon...</p>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text">Add Network</h2>
+          <Button
+            size="sm"
+            color="primary"
+            variant="light"
+            onPress={() => setIsAddNetworkOpen(true)}
+          >
+            Add New
+          </Button>
+        </div>
       </div>
+
+      <AddNetworkModal
+        isOpen={isAddNetworkOpen}
+        onClose={() => setIsAddNetworkOpen(false)}
+        onSubmit={handleAddNetwork}
+      />
     </Card>
   );
 };
