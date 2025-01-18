@@ -24,6 +24,8 @@ import { inter } from '@/config/fonts';
 
 // Merge
 import merge from 'lodash.merge';
+import storage from 'local-storage-fallback' 
+
 
 const theme = merge(lightTheme(), {
   colors: {
@@ -43,7 +45,7 @@ const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
+    const savedTheme = storage.getItem('theme');
     if (savedTheme) {
       document.documentElement.setAttribute('data-theme', savedTheme);
     }

@@ -33,28 +33,23 @@ import { addCustomNetwork } from '@/config/customNetworks';
 import { IoTimeOutline } from 'react-icons/io5';
 import { BsQuestionCircle } from "react-icons/bs";
 import Image from 'next/image';
-import { optimism } from 'viem/chains';
 import { L1_CHAIN } from '@/config/environment';
 import { CiWarning } from 'react-icons/ci';
 import AddNetworkModal from '../Setting/AddNetworkModal';
 import { uncensoredSDK, getAllChainConfigs } from '@/config/chainConfig';
 
 // Get supported chains from chainConfigs
-const getChains = () => {
-  const configs = getAllChainConfigs();
-  return Object.values(configs).map((config) => ({
-    key: config.chainId.toString(),
-    name: config.name,
-    logo: config.logo ? config.logo : '/img/eth.png',
-    chainId: config.chainId,
-  }));
-};
 
 const ForceInclusionCard: React.FC = () => {
-  const [chains, setChains] = useState(getChains());
-  const [selectedChain, setSelectedChain] = useState<string>(
-    chains[0]?.key || ''
-  );
+  const [chains, setChains] = useState(getAllChainConfigs());
+  console.log('chains[0]?.chainId', chains[0]?.chainId)
+  const [l2ChainId, setL2ChainId] = useState<number>(chains[0]?.chainId || 0);
+
+  const selectedChain = Object.values(chains).find((chain) => chain.chainId === l2ChainId);
+  console.log('l2 chain', l2ChainId, typeof l2ChainId)
+
+  
+  console.log('selectedChain', selectedChain)
 
   const l1ChainId = L1_CHAIN.id;
 
@@ -92,28 +87,21 @@ const ForceInclusionCard: React.FC = () => {
     };
 
     addCustomNetwork(networkData.chainId, newConfig);
-    setChains(getChains()); // Refresh chains list
+    setChains(getAllChainConfigs()); // Refresh chains list
     toast.success('Network added successfully!');
-    setSelectedChain(networkData.chainId.toString());
+    setL2ChainId(networkData.chainId);
   };
 
   // Refresh chains when custom networks change
   useEffect(() => {
     const handleStorageChange = () => {
-      setChains(getChains());
+      setChains(getAllChainConfigs());
     };
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  // fetch
-  const l2ChainId = useMemo(
-    () =>
-      chains.find((chain) => chain.key === selectedChain)?.chainId ||
-      optimism.id,
-    [selectedChain]
-  );
 
   const {
     data: l1Receipt,
@@ -298,9 +286,7 @@ const ForceInclusionCard: React.FC = () => {
         value: valueInWei,
         data,
         gasLimit: gasLimit,
-        chainId:
-          chains.find((chain) => chain.key === selectedChain)?.chainId ||
-          optimism.id,
+        chainId: l2ChainId
       });
 
       sendTransaction(
@@ -358,8 +344,7 @@ const ForceInclusionCard: React.FC = () => {
                   startContent={
                     <Image
                       src={
-                        chains.find((chain) => chain.key === selectedChain)
-                          ?.logo || ''
+                        selectedChain?.logo || ''
                       }
                       alt="Chain Logo"
                       width={24}
@@ -367,7 +352,7 @@ const ForceInclusionCard: React.FC = () => {
                     />
                   }
                 >
-                  {chains.find((chain) => chain.key === selectedChain)?.name}
+                  {selectedChain?.name}
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
@@ -375,14 +360,15 @@ const ForceInclusionCard: React.FC = () => {
                 variant="flat"
                 disallowEmptySelection
                 selectionMode="single"
-                selectedKeys={new Set([selectedChain])}
+                selectedKeys={new Set([l2ChainId])}
                 onSelectionChange={(keys) => {
                   const selected = Array.from(keys)[0] as string;
-                  setSelectedChain(selected);
+                  console.log('selected', selected);
+                  setL2ChainId(Number(selected));
                 }}
               >
-                {chains.map((chain) => (
-                  <DropdownItem key={chain.key}>
+                {Object.values(chains).map((chain) => (
+                  <DropdownItem key={chain.chainId}>
                     <div className="flex items-center gap-2">
                       <Image
                         src={chain.logo}
@@ -524,11 +510,11 @@ const ForceInclusionCard: React.FC = () => {
             </div>
           )}
 
-          {chains.find((chain) => chain.key === selectedChain)?.maxWaitTime && (
+          {selectedChain?.maxWaitTime && (
             <div className="flex items-center justify-end gap-2 text-sm text-gray-500">
               <IoTimeOutline className="text-gray-400" size={16} />
               <span>
-                Max wait time: {chains.find((chain) => chain.key === selectedChain)?.maxWaitTime! / 3600}{' '}
+                Max wait time: {selectedChain?.maxWaitTime! / 3600}{' '}
                 hours
               </span>
               <Tooltip content="Maximum time to wait for the transaction to be included on L2">

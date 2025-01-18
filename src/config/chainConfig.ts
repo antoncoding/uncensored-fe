@@ -18,8 +18,9 @@ export interface ChainConfig {
   chainId: number;
   isOpstack?: boolean;
   maxWaitTime?: number;
-  logo: string;
-  explorerUrl: string;
+  
+  logo?: string;
+  explorerUrl?: string;
   etherscanApiUrl?: string;
   etherscanApiKey?: string;
 }
@@ -111,10 +112,10 @@ export const chainConfigs: Record<number, ChainConfig> = isTestnet
 
 export const getAllChainConfigs = () => {
   const customNetworks = getCustomNetworks();
-  return {
-    ...customNetworks,
-    ...chainConfigs,
-  };
+  return [
+    ...Object.values(customNetworks),
+    ...Object.values(chainConfigs),
+  ];
 };
 
 // Initialize SDK with all supported chains

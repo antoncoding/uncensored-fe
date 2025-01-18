@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Card, Switch, Button } from '@nextui-org/react';
 import AddNetworkModal from './AddNetworkModal';
 import { toast } from 'react-toastify';
-import { Chain } from 'viem';
 import { addCustomNetwork } from '@/config/customNetworks';
+import storage from 'local-storage-fallback'
 
 const Settings = () => {
   const [theme, setTheme] = useState('light');
   const [isAddNetworkOpen, setIsAddNetworkOpen] = useState(false);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
+    const savedTheme = storage.getItem('theme');
     if (savedTheme) {
       setTheme(savedTheme);
       document.documentElement.setAttribute('data-theme', savedTheme);
@@ -21,7 +21,7 @@ const Settings = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
+    storage.setItem('theme', newTheme);
   };
 
   const handleAddNetwork = (networkData: {
