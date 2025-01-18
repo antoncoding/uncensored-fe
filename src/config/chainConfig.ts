@@ -118,18 +118,27 @@ export const getAllChainConfigs = () => {
   ];
 };
 
-// Initialize SDK with all supported chains
-const sdkConfig = Object.entries(getAllChainConfigs()).reduce(
-  (acc, [chainId, config]) => {
-    if (config.isOpstack) {
-      acc[Number(chainId)] = {
-        type: AdapterType.OPStack,
-        optimismPortalAddress: config.optimismPortalAddress,
-      };
-    }
-    return acc;
-  },
-  {} as Record<number, { type: AdapterType; optimismPortalAddress: Address }>
-);
+console.log('getAllChainConfigs', getAllChainConfigs())
 
-export const uncensoredSDK = new UncensoredSDK(sdkConfig);
+// Initialize SDK with all supported chains
+const getUncensoredSDK = () => {
+  const sdkConfig = Object.entries(getAllChainConfigs()).reduce(
+    (acc, [_, config]) => {
+      if (config.isOpstack) {
+        acc[Number(config.chainId)] = {
+          type: AdapterType.OPStack,
+          optimismPortalAddress: config.optimismPortalAddress,
+        };
+      }
+      return acc;
+    },
+    {} as Record<number, { type: AdapterType; optimismPortalAddress: Address }>
+  );
+
+  console.log('sdkConfig', sdkConfig)
+
+  return new UncensoredSDK(sdkConfig);
+};
+
+export const uncensoredSDK = getUncensoredSDK();
+export const getSDKWithCurrentConfigs = () => getUncensoredSDK();

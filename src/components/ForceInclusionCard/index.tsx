@@ -37,7 +37,7 @@ import Image from 'next/image';
 import { L1_CHAIN } from '@/config/environment';
 import { CiWarning } from 'react-icons/ci';
 import AddNetworkModal from '../Setting/AddNetworkModal';
-import { uncensoredSDK, getAllChainConfigs } from '@/config/chainConfig';
+import { getAllChainConfigs, getSDKWithCurrentConfigs } from '@/config/chainConfig';
 import { TbCircleLetterC } from "react-icons/tb";
 
 
@@ -45,15 +45,9 @@ import { TbCircleLetterC } from "react-icons/tb";
 
 const ForceInclusionCard: React.FC = () => {
   const [chains, setChains] = useState(getAllChainConfigs());
-  console.log('chains[0]?.chainId', chains[0]?.chainId)
   const [l2ChainId, setL2ChainId] = useState<number>(chains[0]?.chainId || 0);
 
   const selectedChain = Object.values(chains).find((chain) => chain.chainId === l2ChainId);
-  console.log('l2 chain', l2ChainId, typeof l2ChainId)
-
-  
-  console.log('selectedChain', selectedChain)
-
   const l1ChainId = L1_CHAIN.id;
 
   const [value, setValue] = useState<string>('');
@@ -104,7 +98,6 @@ const ForceInclusionCard: React.FC = () => {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
-
 
   const {
     data: l1Receipt,
@@ -166,6 +159,7 @@ const ForceInclusionCard: React.FC = () => {
           window.open(chainIdToExplorer(l1ChainId, l1TxHash), '_blank');
         },
       });
+      const uncensoredSDK = getSDKWithCurrentConfigs();
       const l2Hashes = uncensoredSDK.getL2TxHashes(l1Receipt, l2ChainId);
       if (l2Hashes.length > 0) {
         const l2Hash = l2Hashes[0];
@@ -284,6 +278,7 @@ const ForceInclusionCard: React.FC = () => {
 
     try {
       const valueInWei = value ? parseEther(value) : BigInt(0);
+      const uncensoredSDK = getSDKWithCurrentConfigs();
       const l1Tx = uncensoredSDK.transformTransaction({
         to: to as `0x${string}`,
         value: valueInWei,
@@ -345,14 +340,16 @@ const ForceInclusionCard: React.FC = () => {
                   variant="bordered"
                   className="capitalize"
                   startContent={
-                    <Image
-                      src={
-                        selectedChain?.logo || ''
-                      }
-                      alt="Chain Logo"
-                      width={24}
-                      height={24}
-                    />
+                    selectedChain?.logo ? (
+                      <Image
+                        src={selectedChain.logo}
+                        alt="Chain Logo"
+                        width={24}
+                        height={24}
+                      />
+                    ) : (
+                      <TbCircleLetterC size={24} />
+                    )
                   }
                 >
                   {selectedChain?.name}
