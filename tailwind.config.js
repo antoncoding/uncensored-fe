@@ -1,5 +1,5 @@
 const { nextui } = require('@nextui-org/react');
-
+const { Interface } = require('ethers');
 const colors = require('tailwindcss/colors');
 
 /** @type {import('tailwindcss').Config} */
@@ -10,6 +10,14 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        inter: ['var(--font-inter)'],
+      },
+      fontWeight: {
+        light: '300', // maps to font-light
+        semibold: '600', // maps to font-semibold
+        bold: '700', // maps to font-semibold
+      },
       colors: {
         primary: '#0ea5e9',
         secondary: '#93c5fd',

@@ -31,9 +31,11 @@ import { chainIdToExplorer } from '@/utils/chains';
 import SmartModeInput from '../SmartModeInput';
 import { chainConfigs, uncensoredSDK } from '@/config/chainConfig';
 import { IoTimeOutline } from 'react-icons/io5';
-import { L1_CHAIN } from '@/config/environment';
+import { BsQuestionCircle } from 'react-icons/bs';
 import Image from 'next/image';
 import { optimism } from 'viem/chains';
+import { L1_CHAIN } from '@/config/environment';
+import { CiWarning } from 'react-icons/ci';
 
 // Get supported chains from chainConfigs
 const chains = Object.values(chainConfigs).map((config) => ({
@@ -79,6 +81,7 @@ const ForceInclusionCard: React.FC = () => {
     isLoading: isL1Loading,
     isSuccess: isL1Success,
     isError: isL1Error,
+    error: l1Error,
   } = useWaitForTransactionReceipt({
     hash: l1TxHash,
     chainId: l1ChainId,
@@ -91,6 +94,7 @@ const ForceInclusionCard: React.FC = () => {
     isLoading: isL2Loading,
     isSuccess: isL2Success,
     isError: isL2Error,
+    error: l2Error,
   } = useWaitForTransactionReceipt({
     hash: l2TxHash,
     chainId: l2ChainId,
@@ -291,113 +295,206 @@ const ForceInclusionCard: React.FC = () => {
   };
 
   return (
-    <Card className="p-8 w-full max-w-xl shadow-sm bg-card">
-      <h2 className="text-2xl font-bold mb-4">Force Inclusion</h2>
-      <p className="text-sm text-gray-500 mb-6">
-        Enter L2 transaction details, and we&apos;ll force its inclusion from L1
-        🏰.
-      </p>
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-sm font-semibold mb-1">Target L2 Chain</h3>
-          <p className="text-xs text-gray-500 mb-2">
-            Select the L2 chain where you want to include this transaction.
-          </p>
-          <Dropdown>
-            <DropdownTrigger>
-              <Button variant="bordered" size="sm">
-                {selectedChain
-                  ? chains.find((chain) => chain.key === selectedChain)?.name
-                  : 'Select chain'}
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Select chain">
-              {chains.map((chain) => (
-                <DropdownItem
-                  key={chain.key}
-                  onClick={() => setSelectedChain(chain.key)}
-                >
-                  <div className="flex items-center">
+    <div className="w-full max-w-2xl mx-auto p-4 font-inter min-h-screen">
+      <h1 className="text-3xl mb-12 pt-8">Force Transaction Inclusion</h1>
+      <Card className="p-6 h-full">
+        <div className="flex flex-col gap-6">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-sm ">Target L2 Chain</h3>
+              <Tooltip content="Select the L2 chain where you want to include this transaction">
+                <button className="focus:outline-none">
+                  <BsQuestionCircle
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    size={14}
+                  />
+                </button>
+              </Tooltip>
+            </div>
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  variant="bordered"
+                  className="capitalize"
+                  startContent={
                     <Image
-                      src={chain.logo}
-                      alt={chain.name}
-                      width={20}
-                      height={20}
+                      src={
+                        chains.find((chain) => chain.key === selectedChain)
+                          ?.logo || ''
+                      }
+                      alt="Chain Logo"
+                      width={24}
+                      height={24}
                     />
-                    <span className="ml-2">{chain.name}</span>
-                  </div>
-                </DropdownItem>
-              ))}
-            </DropdownMenu>
-          </Dropdown>
-        </div>
-
-        <Input
-          label="To"
-          placeholder="0x"
-          type="text"
-          value={to}
-          onChange={(e) => setTo(e.target.value as Address)}
-          errorMessage={
-            to && !to.startsWith('0x') ? 'Invalid address' : undefined
-          }
-          isInvalid={!!(to && !to.startsWith('0x'))}
-        />
-        <Input
-          label="Value (ETH)"
-          placeholder="Enter value in ETH"
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-
-        <div>
-          <Textarea
-            label="Data"
-            placeholder="0x"
-            type="text"
-            value={data}
-            onChange={(e) => setData(e.target.value as `0x${string}`)}
-            errorMessage={
-              data && !data.startsWith('0x') ? 'Invalid data' : undefined
-            }
-            isInvalid={!!(data && !data.startsWith('0x'))}
-          />
-          <div className="mt-1">
-            <Tooltip content="Compose transaction data using contract ABI">
-              <span
-                className="text-xs text-gray-500 cursor-pointer underline ml-2"
-                onClick={handleComposeDataClick}
+                  }
+                >
+                  {chains.find((chain) => chain.key === selectedChain)?.name}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Select chain"
+                variant="flat"
+                disallowEmptySelection
+                selectionMode="single"
+                selectedKeys={new Set([selectedChain])}
+                onSelectionChange={(keys) => {
+                  const selected = Array.from(keys)[0] as string;
+                  setSelectedChain(selected);
+                }}
               >
-                Compose data with ABI
-              </span>
-            </Tooltip>
+                {chains.map((chain) => (
+                  <DropdownItem key={chain.key}>
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={chain.logo}
+                        alt={chain.name}
+                        width={24}
+                        height={24}
+                      />
+                      {chain.name}
+                    </div>
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
           </div>
-        </div>
 
-        <Input
-          label="Gas Limit"
-          type="number"
-          value={gasLimit}
-          onChange={(e) => setGasLimit(e.target.value)}
-        />
-      </div>
-      <div className="flex justify-end space-x-4 mt-8">
-        <Button color="primary" onPress={forceSendTx} disabled={isL1Loading}>
-          Force Include
-        </Button>
-      </div>
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-sm ">To Address</h3>
+              <Tooltip content="The contract address to call on L2">
+                <button className="focus:outline-none">
+                  <BsQuestionCircle
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    size={14}
+                  />
+                </button>
+              </Tooltip>
+            </div>
+            <Input
+              placeholder="0x"
+              type="text"
+              value={to}
+              onChange={(e) => setTo(e.target.value as Address)}
+              errorMessage={
+                to && !to.startsWith('0x') ? 'Invalid address' : undefined
+              }
+              isInvalid={!!(to && !to.startsWith('0x'))}
+            />
+          </div>
 
-      {chainConfigs[l2ChainId]?.maxWaitTime ? (
-        <div className="flex h-10 items-center justify-end text-sm text-gray-500">
-          <IoTimeOutline className="text-gray-400" />
-          <span>
-            Max wait time: {chainConfigs[l2ChainId].maxWaitTime! / 3600} hours
-          </span>
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-sm ">Value (ETH)</h3>
+              <Tooltip content="Amount of ETH to send with the transaction">
+                <button className="focus:outline-none">
+                  <BsQuestionCircle
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    size={14}
+                  />
+                </button>
+              </Tooltip>
+            </div>
+            <Input
+              placeholder="Enter value in ETH"
+              type="text"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-sm ">Transaction Data</h3>
+              <Tooltip content="The calldata for the transaction. Use the ABI composer for smart contract interactions">
+                <button className="focus:outline-none">
+                  <BsQuestionCircle
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    size={14}
+                  />
+                </button>
+              </Tooltip>
+            </div>
+            <Textarea
+              placeholder="0x"
+              value={data}
+              onChange={(e) => setData(e.target.value as `0x${string}`)}
+              errorMessage={
+                data && !data.startsWith('0x') ? 'Invalid data' : undefined
+              }
+              isInvalid={!!(data && !data.startsWith('0x'))}
+            />
+            <div className="mt-1">
+              <Tooltip content="Compose transaction data using contract ABI">
+                <span
+                  className="text-xs text-gray-500 cursor-pointer underline ml-2"
+                  onClick={handleComposeDataClick}
+                >
+                  Compose data with ABI
+                </span>
+              </Tooltip>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-sm ">Gas Limit</h3>
+              <Tooltip content="Maximum amount of gas that can be used for this transaction">
+                <button className="focus:outline-none">
+                  <BsQuestionCircle
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    size={14}
+                  />
+                </button>
+              </Tooltip>
+            </div>
+            <Input
+              type="number"
+              placeholder="Enter gas limit"
+              value={gasLimit}
+              onChange={(e) => setGasLimit(e.target.value)}
+            />
+          </div>
+
+          {(isL1Error || isL2Error) && (
+            <div className="flex items-center gap-2 p-4 bg-red-100 border border-red-300 rounded-lg text-red-700">
+              <CiWarning size={20} className="flex-shrink-0" />
+              <span className="text-sm">
+                Error:{' '}
+                {(isL1Error && l1Error.message) ||
+                  (isL2Error && l2Error.message)}
+              </span>
+            </div>
+          )}
+
+          {!isL1Loading && !isL2Loading && !isL1Error && !isL2Error && (
+            <div className="flex justify-end gap-2">
+              <Button color="primary" onClick={forceSendTx}>
+                Submit
+              </Button>
+            </div>
+          )}
+
+          {chainConfigs[l2ChainId]?.maxWaitTime && (
+            <div className="flex items-center justify-end gap-2 text-sm text-gray-500">
+              <IoTimeOutline className="text-gray-400" size={16} />
+              <span>
+                Max wait time: {chainConfigs[l2ChainId].maxWaitTime! / 3600}{' '}
+                hours
+              </span>
+              <Tooltip content="Maximum time to wait for the transaction to be included on L2">
+                <button className="focus:outline-none">
+                  <BsQuestionCircle
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    size={14}
+                  />
+                </button>
+              </Tooltip>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="h-10"></div>
-      )}
+      </Card>
+
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>Compose Transaction Data</ModalHeader>
@@ -415,7 +512,7 @@ const ForceInclusionCard: React.FC = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Card>
+    </div>
   );
 };
 
