@@ -30,7 +30,6 @@ import { Address, isAddress } from 'viem';
 import { toast } from 'react-toastify';
 import { chainIdToExplorer } from '@/utils/chains';
 import SmartModeInput from '../SmartModeInput';
-import { addCustomNetwork } from '@/config/customNetworks';
 import { IoTimeOutline } from 'react-icons/io5';
 import { BsQuestionCircle } from 'react-icons/bs';
 import Image from 'next/image';
@@ -38,10 +37,13 @@ import { L1_CHAIN } from '@/config/environment';
 import { CiWarning } from 'react-icons/ci';
 import AddNetworkModal from '../Setting/AddNetworkModal';
 import {
+  ChainConfig,
   getAllChainConfigs,
   getSDKWithCurrentConfigs,
 } from '@/config/chainConfig';
 import { TbCircleLetterC } from 'react-icons/tb';
+import { FaRegEdit } from "react-icons/fa";
+
 
 // Get supported chains from chainConfigs
 
@@ -71,24 +73,10 @@ const ForceInclusionCard: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [isAddNetworkOpen, setIsAddNetworkOpen] = useState(false);
+  const [networkToEdit, setNetworkToEdit] = useState<ChainConfig | undefined>();
 
-  const handleAddNetwork = (networkData: {
-    name: string;
-    chainId: number;
-    optimismPortalAddress: string;
-    rpcUrl: string;
-  }) => {
-    const newConfig = {
-      ...networkData,
-      optimismPortalAddress: networkData.optimismPortalAddress as `0x${string}`,
-      isOpstack: true,
-      maxWaitTime: 12 * 3600, // 12 hours
-    };
-
-    addCustomNetwork(networkData.chainId, newConfig);
+  const onAddNetworkCallback = () => {
     setChains(getAllChainConfigs()); // Refresh chains list
-    toast.success('Network added successfully!');
-    setL2ChainId(networkData.chainId);
   };
 
   // Refresh chains when custom networks change
@@ -358,10 +346,7 @@ const ForceInclusionCard: React.FC = () => {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
-                aria-label="Select chain"
-                variant="flat"
-                disallowEmptySelection
-                selectionMode="single"
+                aria-label="Network selection"
                 selectedKeys={new Set([l2ChainId])}
                 onSelectionChange={(keys) => {
                   const selected = Array.from(keys)[0] as string;
@@ -369,36 +354,44 @@ const ForceInclusionCard: React.FC = () => {
                     setL2ChainId(Number(selected));
                   }
                 }}
+                disallowEmptySelection
+                selectionMode="single"
                 className="p-3"
-                itemClasses={{
-                  base: [
-                    'rounded-md',
-                    'text-default-500',
-                    'transition-opacity',
-                    'data-[hover=true]:text-foreground',
-                    'data-[hover=true]:bg-default-100',
-                    'dark:data-[hover=true]:bg-default-50',
-                    'data-[selectable=true]:focus:bg-default-50',
-                    'data-[pressed=true]:opacity-70',
-                    'data-[focus-visible=true]:ring-default-500',
-                  ],
-                }}
               >
-                <DropdownSection showDivider aria-label="Available Networks">
+                <DropdownSection showDivider>
                   {Object.values(chains).map((chain) => (
                     <DropdownItem key={chain.chainId}>
-                      <div className="flex items-center gap-2">
-                        {chain.logo ? (
-                          <Image
-                            src={chain.logo}
-                            alt={chain.name}
-                            width={24}
-                            height={24}
-                          />
-                        ) : (
-                          <TbCircleLetterC />
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2">
+                          {chain.logo ? (
+                            <Image
+                              src={chain.logo}
+                              alt={chain.name}
+                              width={24}
+                              height={24}
+                            />
+                          ) : (
+                            <TbCircleLetterC size={24} />
+                          )}
+                          {chain.name}
+
+                          {!chain.logo && (
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="light"
+                            className="text-opacity-50"
+                            onPress={(e) => {
+                              console.log('on press')
+                              setNetworkToEdit(chain);
+                              setIsAddNetworkOpen(true);
+                            }}
+                          >
+                            <FaRegEdit size={16} />
+                          </Button>
                         )}
-                        {chain.name}
+                        </div>
+                        
                       </div>
                     </DropdownItem>
                   ))}
@@ -572,8 +565,12 @@ const ForceInclusionCard: React.FC = () => {
 
       <AddNetworkModal
         isOpen={isAddNetworkOpen}
-        onClose={() => setIsAddNetworkOpen(false)}
-        onSubmit={handleAddNetwork}
+        onClose={() => {
+          setIsAddNetworkOpen(false);
+          setNetworkToEdit(undefined);
+        }}
+        editNetwork={networkToEdit}
+        onSubmitCallback={onAddNetworkCallback}
       />
     </div>
   );
