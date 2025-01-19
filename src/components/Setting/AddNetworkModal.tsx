@@ -23,25 +23,51 @@ interface AddNetworkModalProps {
 }
 
 const tooltips = {
-  name: <div className="text-sm p-4">
-    The name for the chain
-  </div>,
-  chainId: <div className="text-sm p-4">
-    <p>Find your chain ID on <a href="https://chainlist.org/" target="_blank" rel="noopener noreferrer" className="text-primary">chainlist.org</a></p>
-  </div>,
-  rpcUrl: <div className="text-sm p-4">
-    The HTTP endpoint used to interact with your chain.
-  </div>,
-  portalProxy: <div className="text-sm p-4 space-y-2">
-    <p>The OptimismPortalProxy contract address on L1.</p>
-    <p>To find it:</p>
-    <ul className="list-disc pl-4 space-y-1">
-      <li>Visit <a href="https://l2beat.com/" target="_blank" rel="noopener noreferrer" className="text-primary">l2beat.com</a></li>
-      <li>Find and click on the chain you want to add</li>
-      <li>Go to <span className="font-medium">Smart contracts</span> section</li>
-      <li>Look for the OptimismPortal address</li>
-    </ul>
-  </div>,
+  name: <div className="text-sm p-4">The name for the chain</div>,
+  chainId: (
+    <div className="text-sm p-4">
+      <p>
+        Find your chain ID on{' '}
+        <a
+          href="https://chainlist.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary"
+        >
+          chainlist.org
+        </a>
+      </p>
+    </div>
+  ),
+  rpcUrl: (
+    <div className="text-sm p-4">
+      The HTTP endpoint used to interact with your chain.
+    </div>
+  ),
+  portalProxy: (
+    <div className="text-sm p-4 space-y-2">
+      <p>The OptimismPortalProxy contract address on L1.</p>
+      <p>To find it:</p>
+      <ul className="list-disc pl-4 space-y-1">
+        <li>
+          Visit{' '}
+          <a
+            href="https://l2beat.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary"
+          >
+            l2beat.com
+          </a>
+        </li>
+        <li>Find and click on the chain you want to add</li>
+        <li>
+          Go to <span className="font-medium">Smart contracts</span> section
+        </li>
+        <li>Look for the OptimismPortal address</li>
+      </ul>
+    </div>
+  ),
 };
 
 export const AddNetworkModal = ({
@@ -83,7 +109,7 @@ export const AddNetworkModal = ({
     } else {
       addCustomNetwork(network.chainId, network);
     }
-    
+
     onClose();
 
     if (onSubmitCallback) {
@@ -100,7 +126,9 @@ export const AddNetworkModal = ({
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
         <Card className="w-full max-w-lg mx-4 px-4">
           <CardHeader className="flex flex-col gap-1 border-b border-divider">
-            <p className="text-xl py-2">{editNetwork ? 'Edit Network' : 'Add Network'}</p>
+            <p className="text-xl py-2">
+              {editNetwork ? 'Edit Network' : 'Add Network'}
+            </p>
             <div className="flex items-center gap-2">
               <span className="text-sm text-default-500">Tech Stack:</span>
               <span className="text-sm">OP Stack</span>
@@ -113,7 +141,10 @@ export const AddNetworkModal = ({
                 <div className="text-sm">Network Name</div>
                 <Tooltip content={tooltips.name} placement="right">
                   <button type="button" className="focus:outline-none">
-                    <BsQuestionCircle className="text-gray-400 hover:text-gray-600 transition-colors" size={14} />
+                    <BsQuestionCircle
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      size={14}
+                    />
                   </button>
                 </Tooltip>
               </div>
@@ -130,7 +161,10 @@ export const AddNetworkModal = ({
                 <div className="text-sm">Chain ID</div>
                 <Tooltip content={tooltips.chainId} placement="right">
                   <button type="button" className="focus:outline-none">
-                    <BsQuestionCircle className="text-gray-400 hover:text-gray-600 transition-colors" size={14} />
+                    <BsQuestionCircle
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      size={14}
+                    />
                   </button>
                 </Tooltip>
               </div>
@@ -148,7 +182,10 @@ export const AddNetworkModal = ({
                 <div className="text-sm">RPC URL</div>
                 <Tooltip content={tooltips.rpcUrl} placement="right">
                   <button type="button" className="focus:outline-none">
-                    <BsQuestionCircle className="text-gray-400 hover:text-gray-600 transition-colors" size={14} />
+                    <BsQuestionCircle
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      size={14}
+                    />
                   </button>
                 </Tooltip>
               </div>
@@ -165,7 +202,10 @@ export const AddNetworkModal = ({
                 <div className="text-sm">Optimism Portal Proxy Address</div>
                 <Tooltip content={tooltips.portalProxy} placement="right">
                   <button type="button" className="focus:outline-none">
-                    <BsQuestionCircle className="text-gray-400 hover:text-gray-600 transition-colors" size={14} />
+                    <BsQuestionCircle
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      size={14}
+                    />
                   </button>
                 </Tooltip>
               </div>
@@ -180,7 +220,11 @@ export const AddNetworkModal = ({
             <Button variant="light" onPress={onClose}>
               Cancel
             </Button>
-            <Button color="primary" onPress={handleSubmit} isDisabled={!isValid}>
+            <Button
+              color="primary"
+              onPress={handleSubmit}
+              isDisabled={!isValid}
+            >
               {editNetwork ? 'Update' : 'Add'}
             </Button>
           </CardFooter>
@@ -188,6 +232,6 @@ export const AddNetworkModal = ({
       </div>
     </div>
   );
-}
+};
 
 export default AddNetworkModal;

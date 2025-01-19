@@ -121,7 +121,7 @@ export const getAllChainConfigMap = () => {
     ...customNetworks,
     ...chainConfigs,
   };
-}
+};
 
 // Initialize SDK with all supported chains
 const getUncensoredSDK = () => {

@@ -6,7 +6,10 @@ import {
   TransactionReceipt,
 } from 'viem';
 import { isAddress } from 'viem';
-import { getAllChainConfigs, getSDKWithCurrentConfigs } from '@/config/chainConfig';
+import {
+  getAllChainConfigs,
+  getSDKWithCurrentConfigs,
+} from '@/config/chainConfig';
 import { sepolia } from 'viem/chains';
 import { L1_CHAIN } from '@/config/environment';
 import { alchemyUrls, getTransport } from '@/lib/constants/wagmiConfig';

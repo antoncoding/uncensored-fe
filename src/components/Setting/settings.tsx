@@ -4,7 +4,7 @@ import storage from 'local-storage-fallback';
 
 const Settings = () => {
   const [theme, setTheme] = useState('light');
-  
+
   useEffect(() => {
     const savedTheme = storage.getItem('theme');
     if (savedTheme) {

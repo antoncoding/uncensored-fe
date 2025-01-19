@@ -9,7 +9,7 @@ import { sepolia } from 'viem/chains';
 import Image from 'next/image';
 import { formatEther } from 'ethers';
 import { FaGasPump } from 'react-icons/fa6';
-import { getAllChainConfigMap, getAllChainConfigs } from '@/config/chainConfig';
+import { getAllChainConfigMap } from '@/config/chainConfig';
 
 type Props = {
   transactions: L1DepositHistory[];
@@ -32,7 +32,7 @@ const getChainLogo = (chainId: number) => {
   const configs = getAllChainConfigMap();
   const chainConfig = configs[chainId];
 
-  console.log('chainConfig', chainConfig)
+  console.log('chainConfig', chainConfig);
 
   if (!chainConfig) return null;
 

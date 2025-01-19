@@ -42,8 +42,7 @@ import {
   getSDKWithCurrentConfigs,
 } from '@/config/chainConfig';
 import { TbCircleLetterC } from 'react-icons/tb';
-import { FaRegEdit } from "react-icons/fa";
-
+import { FaRegEdit } from 'react-icons/fa';
 
 // Get supported chains from chainConfigs
 
@@ -376,22 +375,20 @@ const ForceInclusionCard: React.FC = () => {
                           {chain.name}
 
                           {!chain.logo && (
-                          <Button
-                            isIconOnly
-                            size="sm"
-                            variant="light"
-                            className="text-opacity-50"
-                            onPress={(e) => {
-                              console.log('on press')
-                              setNetworkToEdit(chain);
-                              setIsAddNetworkOpen(true);
-                            }}
-                          >
-                            <FaRegEdit size={16} />
-                          </Button>
-                        )}
+                            <Button
+                              isIconOnly
+                              size="sm"
+                              variant="light"
+                              className="text-opacity-50"
+                              onPress={() => {
+                                setNetworkToEdit(chain);
+                                setIsAddNetworkOpen(true);
+                              }}
+                            >
+                              <FaRegEdit size={16} />
+                            </Button>
+                          )}
                         </div>
-                        
                       </div>
                     </DropdownItem>
                   ))}
