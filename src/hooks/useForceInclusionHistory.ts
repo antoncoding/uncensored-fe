@@ -6,7 +6,7 @@ import {
   TransactionReceipt,
 } from 'viem';
 import { isAddress } from 'viem';
-import { getAllChainConfigs, uncensoredSDK } from '@/config/chainConfig';
+import { getAllChainConfigs, getSDKWithCurrentConfigs } from '@/config/chainConfig';
 import { sepolia } from 'viem/chains';
 import { L1_CHAIN } from '@/config/environment';
 import { alchemyUrls, getTransport } from '@/lib/constants/wagmiConfig';
@@ -58,6 +58,7 @@ const processEventsInBatches = async (
         })) as TransactionReceipt;
 
         // get l2 tx and status
+        const uncensoredSDK = getSDKWithCurrentConfigs();
         const l2TxHashes = uncensoredSDK.getL2TxHashes(receipt, chainId);
         const l2TxHash = l2TxHashes[0];
 

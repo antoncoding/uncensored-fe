@@ -115,7 +115,13 @@ export const getAllChainConfigs = () => {
   return [...Object.values(customNetworks), ...Object.values(chainConfigs)];
 };
 
-console.log('getAllChainConfigs', getAllChainConfigs());
+export const getAllChainConfigMap = () => {
+  const customNetworks = getCustomNetworks();
+  return {
+    ...customNetworks,
+    ...chainConfigs,
+  };
+}
 
 // Initialize SDK with all supported chains
 const getUncensoredSDK = () => {

@@ -9,7 +9,7 @@ import { sepolia } from 'viem/chains';
 import Image from 'next/image';
 import { formatEther } from 'ethers';
 import { FaGasPump } from 'react-icons/fa6';
-import { chainConfigs } from '@/config/chainConfig';
+import { getAllChainConfigMap, getAllChainConfigs } from '@/config/chainConfig';
 
 type Props = {
   transactions: L1DepositHistory[];
@@ -29,8 +29,31 @@ const getStatusColor = (status: TransactionStatus) => {
 };
 
 const getChainLogo = (chainId: number) => {
-  const chainConfig = chainConfigs[chainId];
-  return chainConfig?.logo || '/img/eth.png';
+  const configs = getAllChainConfigMap();
+  const chainConfig = configs[chainId];
+
+  console.log('chainConfig', chainConfig)
+
+  if (!chainConfig) return null;
+
+  if (chainConfig.logo) {
+    return (
+      <Image
+        src={chainConfig.logo}
+        alt={chainConfig.name}
+        width={24}
+        height={24}
+        className="rounded-full"
+      />
+    );
+  }
+
+  // Display chain name in circle when no logo
+  return (
+    <div className="w-6 h-6 rounded-full bg-default-100 flex items-center justify-center text-xs font-medium">
+      {chainConfig.name.slice(0, 2)}
+    </div>
+  );
 };
 
 const formatTxHash = (hash: string) => {
@@ -53,13 +76,7 @@ export default function HistoryList({ transactions }: Props) {
           <div className="flex gap-3">
             {/* Left: Chain Logo */}
             <div className="flex-shrink-0 self-center">
-              <Image
-                src={getChainLogo(tx.l2ChainId)}
-                alt={`${tx.l2ChainId} logo`}
-                width={24}
-                height={24}
-                className="rounded-full"
-              />
+              {getChainLogo(tx.l2ChainId)}
             </div>
 
             {/* Right: Two Row Layout */}
