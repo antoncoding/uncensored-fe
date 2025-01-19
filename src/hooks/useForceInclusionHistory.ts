@@ -10,7 +10,6 @@ import {
   getAllChainConfigs,
   getSDKWithCurrentConfigs,
 } from '@/config/chainConfig';
-import { sepolia } from 'viem/chains';
 import { L1_CHAIN } from '@/config/environment';
 import { alchemyUrls, getTransport } from '@/lib/constants/wagmiConfig';
 
@@ -130,7 +129,7 @@ export function useForceInclusionHistory(address: string) {
         }
 
         const l1Client = createPublicClient({
-          chain: sepolia,
+          chain: L1_CHAIN,
           transport: http(l1RpcUrl),
         });
 

@@ -5,11 +5,11 @@ import {
 import { Card, Link, Chip } from '@nextui-org/react';
 import { chainIdToExplorer, chainIdToAddressExplorer } from '@/utils/chains';
 import { formatDate } from '@/utils/date';
-import { sepolia } from 'viem/chains';
 import Image from 'next/image';
 import { formatEther } from 'ethers';
 import { FaGasPump } from 'react-icons/fa6';
 import { getAllChainConfigMap } from '@/config/chainConfig';
+import { L1_CHAIN } from '@/config/environment';
 
 type Props = {
   transactions: L1DepositHistory[];
@@ -124,7 +124,7 @@ export default function HistoryList({ transactions }: Props) {
               <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
                 <span className="text-gray-400">Forced Inclusion Tx:</span>
                 <Link
-                  href={`${chainIdToExplorer(sepolia.id, tx.txHash)}`}
+                  href={`${chainIdToExplorer(L1_CHAIN.id, tx.txHash)}`}
                   isExternal
                   className="font-mono truncate text-gray-500 text-xs hover:text-gray-700"
                 >
