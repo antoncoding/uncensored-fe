@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   Card,
   Input,
@@ -9,6 +9,7 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  DropdownSection,
   Textarea,
   Modal,
   ModalContent,
@@ -29,27 +30,29 @@ import { Address, isAddress } from 'viem';
 import { toast } from 'react-toastify';
 import { chainIdToExplorer } from '@/utils/chains';
 import SmartModeInput from '../SmartModeInput';
-import { chainConfigs, uncensoredSDK } from '@/config/chainConfig';
 import { IoTimeOutline } from 'react-icons/io5';
 import { BsQuestionCircle } from 'react-icons/bs';
 import Image from 'next/image';
-import { optimism } from 'viem/chains';
 import { L1_CHAIN } from '@/config/environment';
 import { CiWarning } from 'react-icons/ci';
+import AddNetworkModal from '../Setting/AddNetworkModal';
+import {
+  ChainConfig,
+  getAllChainConfigs,
+  getSDKWithCurrentConfigs,
+} from '@/config/chainConfig';
+import { TbCircleLetterC } from 'react-icons/tb';
+import { FaRegEdit } from 'react-icons/fa';
 
 // Get supported chains from chainConfigs
-const chains = Object.values(chainConfigs).map((config) => ({
-  key: config.chain.name.toLowerCase().replace(' ', '-'),
-  name: config.chain.name,
-  chainId: config.chain.id,
-  logo: config.logo,
-}));
 
 const ForceInclusionCard: React.FC = () => {
-  const [selectedChain, setSelectedChain] = useState<string>(
-    chains[0]?.key || ''
-  );
+  const [chains, setChains] = useState(getAllChainConfigs());
+  const [l2ChainId, setL2ChainId] = useState<number>(chains[0]?.chainId || 0);
 
+  const selectedChain = Object.values(chains).find(
+    (chain) => chain.chainId === l2ChainId
+  );
   const l1ChainId = L1_CHAIN.id;
 
   const [value, setValue] = useState<string>('');
@@ -68,13 +71,22 @@ const ForceInclusionCard: React.FC = () => {
   const { switchChain } = useSwitchChain();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // fetch
-  const l2ChainId = useMemo(
-    () =>
-      chains.find((chain) => chain.key === selectedChain)?.chainId ||
-      optimism.id,
-    [selectedChain]
-  );
+  const [isAddNetworkOpen, setIsAddNetworkOpen] = useState(false);
+  const [networkToEdit, setNetworkToEdit] = useState<ChainConfig | undefined>();
+
+  const onAddNetworkCallback = () => {
+    setChains(getAllChainConfigs()); // Refresh chains list
+  };
+
+  // Refresh chains when custom networks change
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setChains(getAllChainConfigs());
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const {
     data: l1Receipt,
@@ -136,6 +148,7 @@ const ForceInclusionCard: React.FC = () => {
           window.open(chainIdToExplorer(l1ChainId, l1TxHash), '_blank');
         },
       });
+      const uncensoredSDK = getSDKWithCurrentConfigs();
       const l2Hashes = uncensoredSDK.getL2TxHashes(l1Receipt, l2ChainId);
       if (l2Hashes.length > 0) {
         const l2Hash = l2Hashes[0];
@@ -254,14 +267,13 @@ const ForceInclusionCard: React.FC = () => {
 
     try {
       const valueInWei = value ? parseEther(value) : BigInt(0);
+      const uncensoredSDK = getSDKWithCurrentConfigs();
       const l1Tx = uncensoredSDK.transformTransaction({
         to: to as `0x${string}`,
         value: valueInWei,
         data,
         gasLimit: gasLimit,
-        chainId:
-          chains.find((chain) => chain.key === selectedChain)?.chainId ||
-          optimism.id,
+        chainId: l2ChainId,
       });
 
       sendTransaction(
@@ -317,44 +329,80 @@ const ForceInclusionCard: React.FC = () => {
                   variant="bordered"
                   className="capitalize"
                   startContent={
-                    <Image
-                      src={
-                        chains.find((chain) => chain.key === selectedChain)
-                          ?.logo || ''
-                      }
-                      alt="Chain Logo"
-                      width={24}
-                      height={24}
-                    />
-                  }
-                >
-                  {chains.find((chain) => chain.key === selectedChain)?.name}
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                aria-label="Select chain"
-                variant="flat"
-                disallowEmptySelection
-                selectionMode="single"
-                selectedKeys={new Set([selectedChain])}
-                onSelectionChange={(keys) => {
-                  const selected = Array.from(keys)[0] as string;
-                  setSelectedChain(selected);
-                }}
-              >
-                {chains.map((chain) => (
-                  <DropdownItem key={chain.key}>
-                    <div className="flex items-center gap-2">
+                    selectedChain?.logo ? (
                       <Image
-                        src={chain.logo}
-                        alt={chain.name}
+                        src={selectedChain.logo}
+                        alt="Chain Logo"
                         width={24}
                         height={24}
                       />
-                      {chain.name}
-                    </div>
+                    ) : (
+                      <TbCircleLetterC size={24} />
+                    )
+                  }
+                >
+                  {selectedChain?.name}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Network selection"
+                selectedKeys={new Set([l2ChainId])}
+                onSelectionChange={(keys) => {
+                  const selected = Array.from(keys)[0] as string;
+                  if (selected !== 'add-network') {
+                    setL2ChainId(Number(selected));
+                  }
+                }}
+                disallowEmptySelection
+                selectionMode="single"
+                className="p-3"
+              >
+                <DropdownSection showDivider>
+                  {Object.values(chains).map((chain) => (
+                    <DropdownItem key={chain.chainId}>
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2">
+                          {chain.logo ? (
+                            <Image
+                              src={chain.logo}
+                              alt={chain.name}
+                              width={24}
+                              height={24}
+                            />
+                          ) : (
+                            <TbCircleLetterC size={24} />
+                          )}
+                          {chain.name}
+
+                          {!chain.logo && (
+                            <Button
+                              isIconOnly
+                              size="sm"
+                              variant="light"
+                              className="text-opacity-50"
+                              onPress={() => {
+                                setNetworkToEdit(chain);
+                                setIsAddNetworkOpen(true);
+                              }}
+                            >
+                              <FaRegEdit size={16} />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </DropdownItem>
+                  ))}
+                </DropdownSection>
+                <DropdownSection aria-label="Actions">
+                  <DropdownItem
+                    key="add-network"
+                    className="text-primary"
+                    onClick={() => setIsAddNetworkOpen(true)}
+                    endContent={<span className="text-xl">+</span>}
+                  >
+                    Add Network
                   </DropdownItem>
-                ))}
+                </DropdownSection>
               </DropdownMenu>
             </Dropdown>
           </div>
@@ -475,12 +523,11 @@ const ForceInclusionCard: React.FC = () => {
             </div>
           )}
 
-          {chainConfigs[l2ChainId]?.maxWaitTime && (
+          {selectedChain?.maxWaitTime && (
             <div className="flex items-center justify-end gap-2 text-sm text-gray-500">
               <IoTimeOutline className="text-gray-400" size={16} />
               <span>
-                Max wait time: {chainConfigs[l2ChainId].maxWaitTime! / 3600}{' '}
-                hours
+                Max wait time: {selectedChain.maxWaitTime / 3600} hours
               </span>
               <Tooltip content="Maximum time to wait for the transaction to be included on L2">
                 <button className="focus:outline-none">
@@ -512,6 +559,16 @@ const ForceInclusionCard: React.FC = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <AddNetworkModal
+        isOpen={isAddNetworkOpen}
+        onClose={() => {
+          setIsAddNetworkOpen(false);
+          setNetworkToEdit(undefined);
+        }}
+        editNetwork={networkToEdit}
+        onSubmitCallback={onAddNetworkCallback}
+      />
     </div>
   );
 };

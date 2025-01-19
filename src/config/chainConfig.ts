@@ -1,5 +1,4 @@
 import {
-  Chain,
   optimismSepolia,
   optimism,
   base,
@@ -10,24 +9,27 @@ import {
 import { isTestnet } from './environment';
 import { UncensoredSDK, AdapterType } from '@rollup-uncensored/sdk';
 import { Address } from 'viem';
+import { getCustomNetworks } from './customNetworks';
 
 export interface ChainConfig {
-  portalAddress: `0x${string}`;
-  startBlock: number;
-  chain: Chain;
+  name: string;
+  optimismPortalAddress: `0x${string}`;
+  chainId: number;
   isOpstack?: boolean;
   maxWaitTime?: number;
-  logo: string;
-  explorerUrl: string;
+
+  rpcUrl?: string;
+  logo?: string;
+  explorerUrl?: string;
   etherscanApiUrl?: string;
   etherscanApiKey?: string;
 }
 
 // Optimism Configurations
 export const opMainnetConfig: ChainConfig = {
-  portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
-  startBlock: 17365802,
-  chain: optimism,
+  name: 'Optimism',
+  optimismPortalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
+  chainId: optimism.id,
   isOpstack: true,
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/op.png',
@@ -37,9 +39,9 @@ export const opMainnetConfig: ChainConfig = {
 };
 
 export const opSepoliaConfig: ChainConfig = {
-  portalAddress: '0x16Fc5058F25648194471939df75CF27A2fdC48BC',
-  startBlock: 4071248,
-  chain: optimismSepolia,
+  name: 'Optimism Sepolia',
+  optimismPortalAddress: '0x16Fc5058F25648194471939df75CF27A2fdC48BC',
+  chainId: optimismSepolia.id,
   isOpstack: true,
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/op.png',
@@ -50,9 +52,9 @@ export const opSepoliaConfig: ChainConfig = {
 
 // Base Configurations
 export const baseMainnetConfig: ChainConfig = {
-  portalAddress: '0x49048044D57e1C92A77f79988d21Fa8fAF74E97e',
-  startBlock: 17482143,
-  chain: base,
+  name: 'Base',
+  optimismPortalAddress: '0x49048044D57e1C92A77f79988d21Fa8fAF74E97e',
+  chainId: base.id,
   isOpstack: true,
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/base.png',
@@ -62,9 +64,9 @@ export const baseMainnetConfig: ChainConfig = {
 };
 
 export const baseSepoliaConfig: ChainConfig = {
-  portalAddress: '0x49f53e41452C74589E85cA1677426Ba426459e85',
-  startBlock: 4370901,
-  chain: baseSepolia,
+  name: 'Base Sepolia',
+  optimismPortalAddress: '0x49f53e41452C74589E85cA1677426Ba426459e85',
+  chainId: baseSepolia.id,
   isOpstack: true,
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/base.png',
@@ -74,9 +76,9 @@ export const baseSepoliaConfig: ChainConfig = {
 };
 
 export const inkSepoliaConfig: ChainConfig = {
-  portalAddress: '0x5c1d29c6c9c8b0800692acc95d700bcb4966a1d7',
-  startBlock: 4370901,
-  chain: inkSepolia,
+  name: 'Ink Sepolia',
+  optimismPortalAddress: '0x5c1d29c6c9c8b0800692acc95d700bcb4966a1d7',
+  chainId: inkSepolia.id,
   isOpstack: true,
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/ink.png',
@@ -84,9 +86,9 @@ export const inkSepoliaConfig: ChainConfig = {
 };
 
 export const inkConfig: ChainConfig = {
-  portalAddress: '0x5d66c1782664115999c47c9fa5cd031f495d3e4f',
-  startBlock: 21344310,
-  chain: ink,
+  name: 'Ink',
+  optimismPortalAddress: '0x5d66c1782664115999c47c9fa5cd031f495d3e4f',
+  chainId: ink.id,
   isOpstack: true,
   maxWaitTime: 12 * 3600, // 12 hours
   logo: '/img/ink.png',
@@ -106,18 +108,40 @@ export const chainConfigs: Record<number, ChainConfig> = isTestnet
       [ink.id]: inkConfig,
     };
 
-// Initialize SDK with all supported chains
-const sdkConfig = Object.entries(chainConfigs).reduce(
-  (acc, [chainId, config]) => {
-    if (config.isOpstack) {
-      acc[Number(chainId)] = {
-        type: AdapterType.OPStack,
-        optimismPortalAddress: config.portalAddress,
-      };
-    }
-    return acc;
-  },
-  {} as Record<number, { type: AdapterType; optimismPortalAddress: Address }>
-);
+// All configs including custom networks
 
-export const uncensoredSDK = new UncensoredSDK(sdkConfig);
+export const getAllChainConfigs = () => {
+  const customNetworks = getCustomNetworks();
+  return [...Object.values(customNetworks), ...Object.values(chainConfigs)];
+};
+
+export const getAllChainConfigMap = () => {
+  const customNetworks = getCustomNetworks();
+  return {
+    ...customNetworks,
+    ...chainConfigs,
+  };
+};
+
+// Initialize SDK with all supported chains
+const getUncensoredSDK = () => {
+  const sdkConfig = Object.entries(getAllChainConfigs()).reduce(
+    (acc, [, config]) => {
+      if (config.isOpstack) {
+        acc[Number(config.chainId)] = {
+          type: AdapterType.OPStack,
+          optimismPortalAddress: config.optimismPortalAddress,
+        };
+      }
+      return acc;
+    },
+    {} as Record<number, { type: AdapterType; optimismPortalAddress: Address }>
+  );
+
+  console.log('sdkConfig', sdkConfig);
+
+  return new UncensoredSDK(sdkConfig);
+};
+
+export const uncensoredSDK = getUncensoredSDK();
+export const getSDKWithCurrentConfigs = () => getUncensoredSDK();

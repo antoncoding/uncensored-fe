@@ -52,6 +52,7 @@ import {
   ink,
   inkSepolia,
 } from 'wagmi/chains';
+import { getCustomNetworks } from '@/config/customNetworks';
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_ID || '';
 const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
@@ -70,9 +71,20 @@ export const alchemyUrls: { [key: number]: string } = {
   [inkSepolia.id]: `https://ink-sepolia.g.alchemy.com/v2/${alchemyKey}`,
 };
 
-export const getTransport = (chain: any) => {
-  if (!alchemyKey) return http();
-  return http(alchemyUrls[chain.id] || undefined);
+export const getTransport = (chainId: number) => {
+  console.log('getTransport with chainId', chainId);
+
+  if (alchemyUrls[chainId]) {
+    return http(alchemyUrls[chainId]);
+  }
+
+  // check custom networks
+  const chain = getCustomNetworks()[chainId];
+  if (chain) {
+    return http(chain.rpcUrl);
+  }
+
+  return http(undefined);
 };
 
 const wallets = [
@@ -142,16 +154,23 @@ export const wagmiConfig = getDefaultConfig({
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [sepolia] : []),
   ],
   transports: {
-    [mainnet.id]: getTransport(mainnet),
-    [optimism.id]: getTransport(optimism),
-    [arbitrum.id]: getTransport(arbitrum),
-    [base.id]: getTransport(base),
-    [optimismSepolia.id]: getTransport(optimismSepolia),
-    [arbitrumSepolia.id]: getTransport(arbitrumSepolia),
-    [sepolia.id]: getTransport(sepolia),
-    [baseSepolia.id]: getTransport(baseSepolia),
-    [ink.id]: getTransport(ink),
-    [inkSepolia.id]: getTransport(inkSepolia),
+    ...Object.values(getCustomNetworks()).reduce(
+      (acc, network) => ({
+        ...acc,
+        [network.chainId]: http(network.rpcUrl),
+      }),
+      {}
+    ),
+    [mainnet.id]: getTransport(mainnet.id),
+    [optimism.id]: getTransport(optimism.id),
+    [arbitrum.id]: getTransport(arbitrum.id),
+    [base.id]: getTransport(base.id),
+    [optimismSepolia.id]: getTransport(optimismSepolia.id),
+    [arbitrumSepolia.id]: getTransport(arbitrumSepolia.id),
+    [sepolia.id]: getTransport(sepolia.id),
+    [baseSepolia.id]: getTransport(baseSepolia.id),
+    [ink.id]: getTransport(ink.id),
+    [inkSepolia.id]: getTransport(inkSepolia.id),
   },
   ssr: true, // If your dApp uses server side rendering (SSR)
 });

@@ -4,13 +4,14 @@ import {
   http,
   parseAbiItem,
   TransactionReceipt,
-  Chain,
 } from 'viem';
 import { isAddress } from 'viem';
-import { chainConfigs, uncensoredSDK } from '@/config/chainConfig';
-import { sepolia } from 'viem/chains';
+import {
+  getAllChainConfigs,
+  getSDKWithCurrentConfigs,
+} from '@/config/chainConfig';
 import { L1_CHAIN } from '@/config/environment';
-import { alchemyUrls } from '@/lib/constants/wagmiConfig';
+import { alchemyUrls, getTransport } from '@/lib/constants/wagmiConfig';
 
 export enum TransactionStatus {
   SUCCEEDED = 'SUCCEEDED',
@@ -33,7 +34,7 @@ export interface L1DepositHistory {
   l1TxFee: bigint;
   l2TransactionHash?: string;
   l2Status?: TransactionStatus;
-  l2Chain: Chain;
+  l2ChainId: number;
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -59,6 +60,7 @@ const processEventsInBatches = async (
         })) as TransactionReceipt;
 
         // get l2 tx and status
+        const uncensoredSDK = getSDKWithCurrentConfigs();
         const l2TxHashes = uncensoredSDK.getL2TxHashes(receipt, chainId);
         const l2TxHash = l2TxHashes[0];
 
@@ -88,7 +90,7 @@ const processEventsInBatches = async (
           to: event.args.to,
           l2TransactionHash: l2TxHash,
           l2Status,
-          l2Chain: chainConfigs[chainId].chain,
+          l2ChainId: chainId,
           l1TxFee: receipt.gasUsed * receipt.effectiveGasPrice,
         };
       })
@@ -127,7 +129,7 @@ export function useForceInclusionHistory(address: string) {
         }
 
         const l1Client = createPublicClient({
-          chain: sepolia,
+          chain: L1_CHAIN,
           transport: http(l1RpcUrl),
         });
 
@@ -138,15 +140,15 @@ export function useForceInclusionHistory(address: string) {
         const allHistories: L1DepositHistory[] = [];
 
         // Filter for OP Stack chains only
-        const opStackChains = Object.entries(chainConfigs).filter(
-          ([, config]) => config.isOpstack
+        const opStackChains = getAllChainConfigs().filter(
+          (chain) => chain.isOpstack
         );
 
         // Process each chain sequentially to avoid too many concurrent requests
-        for (const [chainId, config] of opStackChains) {
+        for (const config of opStackChains) {
+          console.log('fetching history for chainId', config.chainId);
           const l2Client = createPublicClient({
-            chain: config.chain,
-            transport: http(),
+            transport: getTransport(Number(config.chainId)),
           });
 
           const latestBlockNumber = await l1Client.getBlockNumber();
@@ -154,7 +156,7 @@ export function useForceInclusionHistory(address: string) {
           const fromBlock = latestBlockNumber - EVENT_QUERY_BLOCK_RANGE;
 
           const events = await l1Client.getLogs({
-            address: config.portalAddress,
+            address: config.optimismPortalAddress,
             event: DEPOSIT_EVENT,
             args: {
               from: address,
@@ -167,7 +169,7 @@ export function useForceInclusionHistory(address: string) {
             events,
             l1Client,
             l2Client,
-            Number(chainId)
+            Number(config.chainId)
           );
 
           allHistories.push(...chainHistories);

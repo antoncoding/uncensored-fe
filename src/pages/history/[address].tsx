@@ -16,6 +16,7 @@ export default function HistoryPage() {
   const router = useRouter();
   const { address } = router.query;
   const { address: connectedAddress } = useAccount();
+
   const { histories, isLoading, error, refresh } = useForceInclusionHistory(
     address as string
   );
