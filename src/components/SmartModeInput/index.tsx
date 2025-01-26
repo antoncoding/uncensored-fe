@@ -8,6 +8,8 @@ import {
   DropdownSection,
   Button,
   Link,
+  Textarea,
+  Tooltip,
 } from '@nextui-org/react';
 import { Address, encodeFunctionData, isAddress } from 'viem';
 import { toast } from 'react-toastify';
@@ -15,6 +17,9 @@ import { chainIdToAddressExplorer } from '@/utils/chains';
 import { HiCheck } from 'react-icons/hi';
 import { RxCrossCircled } from 'react-icons/rx';
 import { chainConfigs } from '@/config/chainConfig';
+import { TbJson } from 'react-icons/tb';
+import { BsQuestionCircle } from 'react-icons/bs';
+import { CiWarning } from 'react-icons/ci';
 
 interface SmartModeInputProps {
   to: Address;
@@ -41,6 +46,8 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
     useState<string>('');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isProxyDetected, setIsProxyDetected] = useState<boolean>(false);
+  const [manualABI, setManualABI] = useState<string>('');
+  const [parseError, setParseError] = useState<string>('');
 
   useEffect(() => {
     if (to && isAddress(to)) {
@@ -179,6 +186,20 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
     return chainIdToAddressExplorer(selectedChainId, address);
   };
 
+  const handleParseABI = () => {
+    try {
+      const parsedABI = JSON.parse(manualABI);
+      if (!Array.isArray(parsedABI)) {
+        throw new Error('ABI must be a JSON array');
+      }
+      setAbi(parsedABI);
+      setParseError('');
+      toast.success('ABI parsed successfully');
+    } catch (err) {
+      setParseError(err instanceof Error ? err.message : 'Invalid ABI format');
+    }
+  };
+
   return (
     <div className="space-y-4">
       {isLoading && (
@@ -189,7 +210,7 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
 
       <Input label="To Address" value={to} isReadOnly size="sm" isDisabled />
 
-      {!isEditingImplementation && (
+      {!isEditingImplementation && abi !== null && (
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-dashed border-blue-200 dark:border-blue-700 rounded-lg p-3 flex items-center justify-between">
           <div>
             {isProxyDetected ? (
@@ -241,6 +262,58 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
             {' '}
             <RxCrossCircled size={20} />{' '}
           </Button>
+        </div>
+      )}
+
+      {abi ? null : (
+        <div className="space-y-2 border-t pt-4 mt-4">
+          <div className="flex items-center gap-2">
+            <TbJson className="text-gray-400" />
+            <span className="text-sm text-gray-600">Paste ABI manually</span>
+            <Tooltip content="Use this if automatic ABI detection fails. Paste the full ABI JSON array.">
+              <BsQuestionCircle className="text-gray-400" size={14} />
+            </Tooltip>
+          </div>
+          
+          <Textarea
+            placeholder={`Example:\n[\n  {\n    "inputs": [],\n    "name": "myFunction",\n    "outputs": [],\n    "stateMutability": "nonpayable",\n    "type": "function"\n  }\n]`}
+            minRows={5}
+            value={manualABI}
+            onValueChange={setManualABI}
+            classNames={{
+              input: "font-mono text-xs",
+            }}
+          />
+          
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              color="primary"
+              variant="flat"
+              onPress={handleParseABI}
+              isDisabled={!manualABI}
+              className="max-w-fit"
+            >
+              Parse ABI
+            </Button>
+            <Button
+              size="sm"
+              variant="light"
+              onPress={() => {
+                setManualABI('');
+                setParseError('');
+              }}
+            >
+              Clear
+            </Button>
+          </div>
+          
+          {parseError && (
+            <div className="flex items-center gap-2 p-2 bg-red-50 text-red-700 rounded-md">
+              <CiWarning />
+              <span className="text-xs">{parseError}</span>
+            </div>
+          )}
         </div>
       )}
 
