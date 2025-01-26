@@ -18,6 +18,8 @@ import {
   ModalFooter,
   useDisclosure,
   Tooltip,
+  Tabs,
+  Tab,
 } from '@nextui-org/react';
 import { parseEther } from 'ethers';
 import {
@@ -73,6 +75,8 @@ const ForceInclusionCard: React.FC = () => {
 
   const [isAddNetworkOpen, setIsAddNetworkOpen] = useState(false);
   const [networkToEdit, setNetworkToEdit] = useState<ChainConfig | undefined>();
+
+  const [selectedTab, setSelectedTab] = useState('from-scratch');
 
   const onAddNetworkCallback = () => {
     setChains(getAllChainConfigs()); // Refresh chains list
@@ -266,13 +270,28 @@ const ForceInclusionCard: React.FC = () => {
     }
 
     try {
-      const valueInWei = value ? parseEther(value) : BigInt(0);
+      // Handle value conversion based on selected tab
+      const valueInWei =
+        selectedTab === 'from-scratch'
+          ? value
+            ? parseEther(value)
+            : BigInt(0) // Convert ETH to Wei for first tab
+          : value
+            ? BigInt(value)
+            : BigInt(0); // Use Wei directly for second tab
+
+      // Handle gas limit conversion based on selected tab
+      const gasLimitBigInt =
+        selectedTab === 'from-scratch'
+          ? gasLimit // No need to convert decimal string for first tab
+          : BigInt(gasLimit).toString(); // Convert to decimal string for second tab
+
       const uncensoredSDK = getSDKWithCurrentConfigs();
       const l1Tx = uncensoredSDK.transformTransaction({
         to: to as `0x${string}`,
         value: valueInWei,
         data,
-        gasLimit: gasLimit,
+        gasLimit: gasLimitBigInt,
         chainId: l2ChainId,
       });
 
@@ -306,240 +325,386 @@ const ForceInclusionCard: React.FC = () => {
     }
   };
 
-  return (
-    <div className="w-full max-w-2xl mx-auto p-4 font-inter min-h-screen">
-      <h1 className="text-3xl mb-12 pt-8">Force Transaction Inclusion</h1>
-      <Card className="p-6 h-full">
-        <div className="flex flex-col gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-sm ">Target L2 Chain</h3>
-              <Tooltip content="Select the L2 chain where you want to include this transaction">
-                <button className="focus:outline-none">
-                  <BsQuestionCircle
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                    size={14}
-                  />
-                </button>
-              </Tooltip>
-            </div>
-            <Dropdown>
-              <DropdownTrigger>
-                <Button
-                  variant="bordered"
-                  className="capitalize"
-                  startContent={
-                    selectedChain?.logo ? (
+  // Create a shared component for Target L2 Chain
+  const TargetL2ChainSelector = () => (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-sm ">Target L2 Chain</h3>
+        <Tooltip content="Select the L2 chain where you want to include this transaction">
+          <button className="focus:outline-none">
+            <BsQuestionCircle
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              size={14}
+            />
+          </button>
+        </Tooltip>
+      </div>
+      <Dropdown>
+        <DropdownTrigger>
+          <Button
+            variant="bordered"
+            className="capitalize"
+            startContent={
+              selectedChain?.logo ? (
+                <Image
+                  src={selectedChain.logo}
+                  alt="Chain Logo"
+                  width={24}
+                  height={24}
+                />
+              ) : (
+                <TbCircleLetterC size={24} />
+              )
+            }
+          >
+            {selectedChain?.name}
+          </Button>
+        </DropdownTrigger>
+        <DropdownMenu
+          aria-label="Network selection"
+          selectedKeys={new Set([l2ChainId])}
+          onSelectionChange={(keys) => {
+            const selected = Array.from(keys)[0] as string;
+            if (selected !== 'add-network') {
+              setL2ChainId(Number(selected));
+            }
+          }}
+          disallowEmptySelection
+          selectionMode="single"
+          className="p-3"
+        >
+          <DropdownSection showDivider>
+            {Object.values(chains).map((chain) => (
+              <DropdownItem key={chain.chainId}>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    {chain.logo ? (
                       <Image
-                        src={selectedChain.logo}
-                        alt="Chain Logo"
+                        src={chain.logo}
+                        alt={chain.name}
                         width={24}
                         height={24}
                       />
                     ) : (
                       <TbCircleLetterC size={24} />
-                    )
+                    )}
+                    {chain.name}
+
+                    {!chain.logo && (
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                        className="text-opacity-50"
+                        onPress={() => {
+                          setNetworkToEdit(chain);
+                          setIsAddNetworkOpen(true);
+                        }}
+                      >
+                        <FaRegEdit size={16} />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </DropdownItem>
+            ))}
+          </DropdownSection>
+          <DropdownSection aria-label="Actions">
+            <DropdownItem
+              key="add-network"
+              className="text-primary"
+              onClick={() => setIsAddNetworkOpen(true)}
+              endContent={<span className="text-xl">+</span>}
+            >
+              Add Network
+            </DropdownItem>
+          </DropdownSection>
+        </DropdownMenu>
+      </Dropdown>
+    </div>
+  );
+
+  // For ETH input in first tab (allows decimals)
+  const validateEthInput = (input: string): boolean => {
+    if (input === '') return true;
+    return /^\d*\.?\d*$/.test(input);
+  };
+
+  // For Wei/Gas input (integers only)
+  const validateDecimalOrHexInput = (input: string): boolean => {
+    if (input === '') return true;
+
+    // Check if it's a valid hex string
+    if (input.startsWith('0x')) {
+      return /^0x[0-9a-fA-F]*$/.test(input);
+    }
+
+    // Check if it's a valid decimal string (integers only)
+    return /^\d+$/.test(input);
+  };
+
+  const getEthInputErrorMessage = (input: string): string | undefined => {
+    if (input === '') return undefined;
+    return /^\d*\.?\d*$/.test(input) ? undefined : 'Invalid ETH value';
+  };
+
+  const getDecimalOrHexInputErrorMessage = (
+    input: string
+  ): string | undefined => {
+    if (input === '') return undefined;
+
+    if (input.startsWith('0x')) {
+      return /^0x[0-9a-fA-F]*$/.test(input) ? undefined : 'Invalid hex format';
+    }
+
+    return /^\d+$/.test(input)
+      ? undefined
+      : 'Invalid decimal format (must be an integer)';
+  };
+
+  return (
+    <div className="w-full max-w-2xl mx-auto p-4 font-inter min-h-screen">
+      <h1 className="text-3xl mb-12 pt-8">Force Transaction Inclusion</h1>
+      <Card className="p-6 h-full">
+        <Tabs
+          aria-label="Transaction input options"
+          className="mb-6"
+          onSelectionChange={(key) => setSelectedTab(key as string)}
+        >
+          <Tab key="from-scratch" title="Build transaction from scratch">
+            <div className="flex flex-col gap-6 pt-4">
+              <TargetL2ChainSelector />
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-sm ">To Address</h3>
+                  <Tooltip content="The contract address to call on L2">
+                    <button className="focus:outline-none">
+                      <BsQuestionCircle
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        size={14}
+                      />
+                    </button>
+                  </Tooltip>
+                </div>
+                <Input
+                  placeholder="0x"
+                  type="text"
+                  value={to}
+                  onChange={(e) => setTo(e.target.value as Address)}
+                  errorMessage={
+                    to && !to.startsWith('0x') ? 'Invalid address' : undefined
                   }
-                >
-                  {selectedChain?.name}
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                aria-label="Network selection"
-                selectedKeys={new Set([l2ChainId])}
-                onSelectionChange={(keys) => {
-                  const selected = Array.from(keys)[0] as string;
-                  if (selected !== 'add-network') {
-                    setL2ChainId(Number(selected));
+                  isInvalid={!!(to && !to.startsWith('0x'))}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-sm ">Value (ETH)</h3>
+                  <Tooltip content="Amount of ETH to send with the transaction">
+                    <button className="focus:outline-none">
+                      <BsQuestionCircle
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        size={14}
+                      />
+                    </button>
+                  </Tooltip>
+                </div>
+                <Input
+                  placeholder="Enter value in ETH"
+                  type="text"
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  errorMessage={getEthInputErrorMessage(value)}
+                  isInvalid={!validateEthInput(value)}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-sm ">Transaction Data</h3>
+                  <Tooltip content="The calldata for the transaction. Use the ABI composer for smart contract interactions">
+                    <button className="focus:outline-none">
+                      <BsQuestionCircle
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        size={14}
+                      />
+                    </button>
+                  </Tooltip>
+                </div>
+                <Textarea
+                  placeholder="0x"
+                  value={data}
+                  onChange={(e) => setData(e.target.value as `0x${string}`)}
+                  errorMessage={
+                    data && !data.startsWith('0x') ? 'Invalid data' : undefined
                   }
-                }}
-                disallowEmptySelection
-                selectionMode="single"
-                className="p-3"
-              >
-                <DropdownSection showDivider>
-                  {Object.values(chains).map((chain) => (
-                    <DropdownItem key={chain.chainId}>
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          {chain.logo ? (
-                            <Image
-                              src={chain.logo}
-                              alt={chain.name}
-                              width={24}
-                              height={24}
-                            />
-                          ) : (
-                            <TbCircleLetterC size={24} />
-                          )}
-                          {chain.name}
+                  isInvalid={!!(data && !data.startsWith('0x'))}
+                />
+                <div className="mt-1">
+                  <Tooltip content="Compose transaction data using contract ABI">
+                    <span
+                      className="text-xs text-gray-500 cursor-pointer underline ml-2"
+                      onClick={handleComposeDataClick}
+                    >
+                      Compose data with ABI
+                    </span>
+                  </Tooltip>
+                </div>
+              </div>
 
-                          {!chain.logo && (
-                            <Button
-                              isIconOnly
-                              size="sm"
-                              variant="light"
-                              className="text-opacity-50"
-                              onPress={() => {
-                                setNetworkToEdit(chain);
-                                setIsAddNetworkOpen(true);
-                              }}
-                            >
-                              <FaRegEdit size={16} />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </DropdownItem>
-                  ))}
-                </DropdownSection>
-                <DropdownSection aria-label="Actions">
-                  <DropdownItem
-                    key="add-network"
-                    className="text-primary"
-                    onClick={() => setIsAddNetworkOpen(true)}
-                    endContent={<span className="text-xl">+</span>}
-                  >
-                    Add Network
-                  </DropdownItem>
-                </DropdownSection>
-              </DropdownMenu>
-            </Dropdown>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-sm ">Gas Limit</h3>
+                  <Tooltip content="Maximum amount of gas that can be used for this transaction">
+                    <button className="focus:outline-none">
+                      <BsQuestionCircle
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        size={14}
+                      />
+                    </button>
+                  </Tooltip>
+                </div>
+                <Input
+                  type="text"
+                  placeholder="Enter gas limit"
+                  value={gasLimit}
+                  onChange={(e) => setGasLimit(e.target.value)}
+                  errorMessage={getDecimalOrHexInputErrorMessage(gasLimit)}
+                  isInvalid={!validateDecimalOrHexInput(gasLimit)}
+                />
+              </div>
+            </div>
+          </Tab>
+          <Tab key="from-existing" title="Copy from existing transaction">
+            <div className="flex flex-col gap-6 pt-4">
+              <TargetL2ChainSelector />
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-sm ">To Address</h3>
+                  <Tooltip content="The contract address to call on L2">
+                    <button className="focus:outline-none">
+                      <BsQuestionCircle
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        size={14}
+                      />
+                    </button>
+                  </Tooltip>
+                </div>
+                <Input
+                  placeholder="Copy the 'to' field in your transaction. It begins with 0x"
+                  type="text"
+                  value={to}
+                  onChange={(e) => setTo(e.target.value as Address)}
+                  errorMessage={
+                    to && !to.startsWith('0x') ? 'Invalid address' : undefined
+                  }
+                  isInvalid={!!(to && !to.startsWith('0x'))}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-sm ">Value (Wei)</h3>
+                  <Tooltip content="Amount in Wei to send with the transaction">
+                    <button className="focus:outline-none">
+                      <BsQuestionCircle
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        size={14}
+                      />
+                    </button>
+                  </Tooltip>
+                </div>
+                <Input
+                  placeholder="Copy the 'value' field from your transaction. Accepts decimal or hex"
+                  type="text"
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  errorMessage={getDecimalOrHexInputErrorMessage(value)}
+                  isInvalid={!validateDecimalOrHexInput(value)}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-sm ">Transaction Data</h3>
+                  <Tooltip content="The calldata for the transaction">
+                    <button className="focus:outline-none">
+                      <BsQuestionCircle
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        size={14}
+                      />
+                    </button>
+                  </Tooltip>
+                </div>
+                <Textarea
+                  placeholder="Copy the 'data' field in your transaction. It begins with 0x"
+                  value={data}
+                  onChange={(e) => setData(e.target.value as `0x${string}`)}
+                  errorMessage={
+                    data && !data.startsWith('0x') ? 'Invalid data' : undefined
+                  }
+                  isInvalid={!!(data && !data.startsWith('0x'))}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-sm ">Gas Limit</h3>
+                  <Tooltip content="Maximum amount of gas that can be used for this transaction">
+                    <button className="focus:outline-none">
+                      <BsQuestionCircle
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        size={14}
+                      />
+                    </button>
+                  </Tooltip>
+                </div>
+                <Input
+                  type="text"
+                  placeholder="Copy the 'gas' field in your transaction. Accepts decimal or hex"
+                  value={gasLimit}
+                  onChange={(e) => setGasLimit(e.target.value)}
+                  errorMessage={getDecimalOrHexInputErrorMessage(gasLimit)}
+                  isInvalid={!validateDecimalOrHexInput(gasLimit)}
+                />
+              </div>
+            </div>
+          </Tab>
+        </Tabs>
+
+        {(isL1Error || isL2Error) && (
+          <div className="flex items-center gap-2 p-4 bg-red-100 border border-red-300 rounded-lg text-red-700">
+            <CiWarning size={20} className="flex-shrink-0" />
+            <span className="text-sm">
+              Error:{' '}
+              {(isL1Error && l1Error.message) || (isL2Error && l2Error.message)}
+            </span>
           </div>
+        )}
 
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-sm ">To Address</h3>
-              <Tooltip content="The contract address to call on L2">
-                <button className="focus:outline-none">
-                  <BsQuestionCircle
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                    size={14}
-                  />
-                </button>
-              </Tooltip>
-            </div>
-            <Input
-              placeholder="0x"
-              type="text"
-              value={to}
-              onChange={(e) => setTo(e.target.value as Address)}
-              errorMessage={
-                to && !to.startsWith('0x') ? 'Invalid address' : undefined
-              }
-              isInvalid={!!(to && !to.startsWith('0x'))}
-            />
+        {!isL1Loading && !isL2Loading && !isL1Error && !isL2Error && (
+          <div className="flex justify-end gap-2 mt-6">
+            <Button color="primary" onClick={forceSendTx}>
+              Submit
+            </Button>
           </div>
+        )}
 
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-sm ">Value (ETH)</h3>
-              <Tooltip content="Amount of ETH to send with the transaction">
-                <button className="focus:outline-none">
-                  <BsQuestionCircle
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                    size={14}
-                  />
-                </button>
-              </Tooltip>
-            </div>
-            <Input
-              placeholder="Enter value in ETH"
-              type="text"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-            />
+        {selectedChain?.maxWaitTime && (
+          <div className="flex items-center justify-end gap-2 text-sm text-gray-500 mt-4">
+            <IoTimeOutline className="text-gray-400" size={16} />
+            <span>Max wait time: {selectedChain.maxWaitTime / 3600} hours</span>
+            <Tooltip content="Maximum time to wait for the transaction to be included on L2">
+              <button className="focus:outline-none">
+                <BsQuestionCircle
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  size={14}
+                />
+              </button>
+            </Tooltip>
           </div>
-
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-sm ">Transaction Data</h3>
-              <Tooltip content="The calldata for the transaction. Use the ABI composer for smart contract interactions">
-                <button className="focus:outline-none">
-                  <BsQuestionCircle
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                    size={14}
-                  />
-                </button>
-              </Tooltip>
-            </div>
-            <Textarea
-              placeholder="0x"
-              value={data}
-              onChange={(e) => setData(e.target.value as `0x${string}`)}
-              errorMessage={
-                data && !data.startsWith('0x') ? 'Invalid data' : undefined
-              }
-              isInvalid={!!(data && !data.startsWith('0x'))}
-            />
-            <div className="mt-1">
-              <Tooltip content="Compose transaction data using contract ABI">
-                <span
-                  className="text-xs text-gray-500 cursor-pointer underline ml-2"
-                  onClick={handleComposeDataClick}
-                >
-                  Compose data with ABI
-                </span>
-              </Tooltip>
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-sm ">Gas Limit</h3>
-              <Tooltip content="Maximum amount of gas that can be used for this transaction">
-                <button className="focus:outline-none">
-                  <BsQuestionCircle
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                    size={14}
-                  />
-                </button>
-              </Tooltip>
-            </div>
-            <Input
-              type="number"
-              placeholder="Enter gas limit"
-              value={gasLimit}
-              onChange={(e) => setGasLimit(e.target.value)}
-            />
-          </div>
-
-          {(isL1Error || isL2Error) && (
-            <div className="flex items-center gap-2 p-4 bg-red-100 border border-red-300 rounded-lg text-red-700">
-              <CiWarning size={20} className="flex-shrink-0" />
-              <span className="text-sm">
-                Error:{' '}
-                {(isL1Error && l1Error.message) ||
-                  (isL2Error && l2Error.message)}
-              </span>
-            </div>
-          )}
-
-          {!isL1Loading && !isL2Loading && !isL1Error && !isL2Error && (
-            <div className="flex justify-end gap-2">
-              <Button color="primary" onClick={forceSendTx}>
-                Submit
-              </Button>
-            </div>
-          )}
-
-          {selectedChain?.maxWaitTime && (
-            <div className="flex items-center justify-end gap-2 text-sm text-gray-500">
-              <IoTimeOutline className="text-gray-400" size={16} />
-              <span>
-                Max wait time: {selectedChain.maxWaitTime / 3600} hours
-              </span>
-              <Tooltip content="Maximum time to wait for the transaction to be included on L2">
-                <button className="focus:outline-none">
-                  <BsQuestionCircle
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                    size={14}
-                  />
-                </button>
-              </Tooltip>
-            </div>
-          )}
-        </div>
+        )}
       </Card>
 
       <Modal isOpen={isOpen} onClose={onClose}>
