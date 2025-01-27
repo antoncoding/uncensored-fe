@@ -41,6 +41,9 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
     useState<string>('');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isProxyDetected, setIsProxyDetected] = useState<boolean>(false);
+  const [isAbiFetched, setIsAbiFetched] = useState<boolean>(false);
+  const [isManualAbiInput, setIsManualAbiInput] = useState<boolean>(false);
+  const [manualAbiInput, setManualAbiInput] = useState<string>('');
 
   useEffect(() => {
     if (to && isAddress(to)) {
@@ -101,6 +104,7 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
 
     if (!apiKey || !apiUrl) {
       setIsLoading(false);
+      setIsAbiFetched(false);
       return;
     }
 
@@ -111,12 +115,15 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
       const data = await response.json();
       if (data.status === '1') {
         setAbi(JSON.parse(data.result));
+        setIsAbiFetched(true);
       } else {
         toast.error('Failed to fetch ABI');
+        setIsAbiFetched(false);
       }
     } catch (error) {
       console.error('Error fetching ABI:', error);
       toast.error('Error fetching ABI');
+      setIsAbiFetched(false);
     } finally {
       setIsLoading(false);
     }
@@ -179,6 +186,17 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
     return chainIdToAddressExplorer(selectedChainId, address);
   };
 
+  const handleManualAbiSubmit = () => {
+    try {
+      const parsedAbi = JSON.parse(manualAbiInput);
+      setAbi(parsedAbi);
+      setIsAbiFetched(true);
+      setIsManualAbiInput(false);
+    } catch (error) {
+      toast.error('Invalid ABI JSON format');
+    }
+  };
+
   return (
     <div className="space-y-4">
       {isLoading && (
@@ -189,7 +207,7 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
 
       <Input label="To Address" value={to} isReadOnly size="sm" isDisabled />
 
-      {!isEditingImplementation && (
+      {isAbiFetched && !isEditingImplementation && (
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-dashed border-blue-200 dark:border-blue-700 rounded-lg p-3 flex items-center justify-between">
           <div>
             {isProxyDetected ? (
@@ -241,6 +259,53 @@ const SmartModeInput: React.FC<SmartModeInputProps> = ({
             {' '}
             <RxCrossCircled size={20} />{' '}
           </Button>
+        </div>
+      )}
+
+      {!isAbiFetched && !isLoading && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-dashed border-yellow-200 dark:border-yellow-700 rounded-lg p-3">
+          {!isManualAbiInput ? (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-yellow-700 dark:text-yellow-300">
+                Could not fetch ABI automatically
+              </span>
+              <button
+                onClick={() => setIsManualAbiInput(true)}
+                className="text-xs text-yellow-600 dark:text-yellow-400 hover:underline focus:outline-none"
+              >
+                Input ABI manually
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Input
+                label="ABI JSON"
+                placeholder="Paste ABI JSON here"
+                value={manualAbiInput}
+                onChange={(e) => setManualAbiInput(e.target.value)}
+                size="sm"
+                className="font-mono text-xs"
+                type="text"
+                variant="bordered"
+              />
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  color="primary"
+                  onClick={handleManualAbiSubmit}
+                >
+                  Submit
+                </Button>
+                <Button
+                  size="sm"
+                  variant="light"
+                  onClick={() => setIsManualAbiInput(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
