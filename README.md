@@ -1,24 +1,26 @@
-# Uncensored SDK Demo
+# Rollup Fortress
 
-This project demonstrates the usage of the Uncensored SDK, a tool designed to enhance censorship resistance in Layer 2 (L2) blockchain networks.
+[www.rollupfortress.xyz](https://www.rollupfortress.xyz) | [testnet.rollupfortress.xyz](https://testnet.rollupfortress.xyz)
 
-## Key Concepts
+Rollup Fortress is a platform that enables users to interact with L2 networks in a censorship-resistant way. It leverages the [Uncensored SDK](https://github.com/rollup-fortress/uncensored) to allow force inclusion of transactions through L1 when L2 sequencers attempt to censor transactions.
 
-### Censorship Resistance
+## Overview
 
-Censorship resistance is crucial for blockchain networks. While Ethereum's L1 achieves this through numerous validators, L2 solutions often rely on centralized sequencers, making them potentially vulnerable to censorship.
+This platform serves as a demo of the the Uncensored SDK. It currently supports OP Stack super chains and allows users to:
 
-### Force Inclusion
+- Add custom L2 chains (currently supporting OP Stack super chains)
+- Send force inclusion transactions through L1, with L2 calldata
+- Monitor and track force inclusion transaction status
 
-Force Inclusion is a mechanism provided by some L2 networks that allows users to submit transactions directly to the L1 Rollup contract. Our SDK helps users leverage these existing mechanisms, ensuring L2 transactions can't be indefinitely censored by sequencers.
+We're working on integrating other apps to the platform, such as DeFi applications, bridges, and more.
 
-## Available Scripts
+## Force Inclusion
+
+For detailed technical information about how force inclusion works, and the scope of the project, visit our [Documentation](https://rollup-fortress.github.io/uncensored-book).
+
+## Getting Started
 
 ### Development Mode
-
-#### Start the Development Server
-
-These commands start the application in development mode. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result. The page auto-updates as you edit the file.
 
 ```bash
 npm run dev
@@ -28,44 +30,33 @@ yarn dev
 pnpm dev
 ```
 
+Open [http://localhost:3000](http://localhost:3000) to view the application.
+
 ### Production Build
-
-#### Build the App for Production
-
-These commands build an optimized version of the application for production, saved in the `.next` folder.
 
 ```bash
 npm run build
 # or
 yarn build
-# or
-pnpm build
 ```
 
 ### Production Server
-
-#### Start the Production Server
-
-After building the application, use these commands to start the server in production mode.
 
 ```bash
 npm run start
 # or
 yarn start
-# or
-pnpm start
 ```
 
-### Code Quality
+## Resources
 
-#### Run the Linter
+- [Uncensored SDK Documentation](https://rollup-fortress.github.io/uncensored-book/)
+- [SDK Repository](https://github.com/rollup-fortress/uncensored)
 
-Run these commands to start the linter, which helps maintain code quality and find any issues.
+## Contributing
 
-```bash
-npm run lint
-# or
-yarn lint
-# or
-pnpm lint
-```
+We welcome contributions! Whether it's adding support for new L2 networks, improving the UI, or enhancing documentation, please feel free to submit pull requests or open issues.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

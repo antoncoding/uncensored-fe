@@ -72,8 +72,6 @@ export const alchemyUrls: { [key: number]: string } = {
 };
 
 export const getTransport = (chainId: number) => {
-  console.log('getTransport with chainId', chainId);
-
   if (alchemyUrls[chainId]) {
     return http(alchemyUrls[chainId]);
   }

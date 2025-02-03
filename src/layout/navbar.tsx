@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
 import Link from 'next/link';
-import { IoSettingsOutline } from 'react-icons/io5';
-import { FaGithub } from 'react-icons/fa';
+import { IoSettingsOutline, IoBookOutline } from 'react-icons/io5';
+import { FaGithub, FaTelegramPlane } from 'react-icons/fa';
 import {
   Dropdown,
   DropdownTrigger,
@@ -40,6 +40,16 @@ const Navbar = () => {
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="More actions">
+            <DropdownItem>
+              <Link
+                href="https://rollup-fortress.github.io/uncensored-book/"
+                target="_blank"
+                className="flex items-center gap-2"
+              >
+                <IoBookOutline size={18} />
+                Docs
+              </Link>
+            </DropdownItem>
             <DropdownItem onClick={() => setIsSettingsOpen(true)}>
               <div className="flex items-center gap-2">
                 <IoSettingsOutline size={18} />
@@ -54,6 +64,16 @@ const Navbar = () => {
               >
                 <FaGithub size={18} />
                 SDK
+              </Link>
+            </DropdownItem>
+            <DropdownItem>
+              <Link
+                href="https://t.me/+22BY-SQHEFc1ZjA1"
+                target="_blank"
+                className="flex items-center gap-2"
+              >
+                <FaTelegramPlane size={18} />
+                Send Feedback
               </Link>
             </DropdownItem>
           </DropdownMenu>

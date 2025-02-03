@@ -138,8 +138,6 @@ const getUncensoredSDK = () => {
     {} as Record<number, { type: AdapterType; optimismPortalAddress: Address }>
   );
 
-  console.log('sdkConfig', sdkConfig);
-
   return new UncensoredSDK(sdkConfig);
 };
 
