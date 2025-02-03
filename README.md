@@ -55,17 +55,3 @@ yarn start
 # or
 pnpm start
 ```
-
-### Code Quality
-
-#### Run the Linter
-
-Run these commands to start the linter, which helps maintain code quality and find any issues.
-
-```bash
-npm run lint
-# or
-yarn lint
-# or
-pnpm lint
-```
