@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
 import Link from 'next/link';
-import { IoSettingsOutline, IoBookOutline } from 'react-icons/io5';
+import {
+  IoSettingsOutline,
+  IoBookOutline,
+  IoTrailSignOutline,
+} from 'react-icons/io5';
 import { FaGithub, FaTelegramPlane } from 'react-icons/fa';
 import {
   Dropdown,
@@ -14,6 +18,7 @@ import {
 
 import { useAccount } from 'wagmi';
 import SettingsModal from './SettingsModal';
+import { isTestnet } from '../config/environment';
 
 const Navbar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -40,6 +45,20 @@ const Navbar = () => {
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="More actions">
+            <DropdownItem>
+              <Link
+                href={
+                  isTestnet
+                    ? 'https://www.rollupfortress.xyz/'
+                    : 'https://testnet.rollupfortress.xyz/'
+                }
+                target="_blank"
+                className="flex items-center gap-2"
+              >
+                <IoTrailSignOutline size={18} />
+                {isTestnet ? 'Mainnets' : 'Testnets'}
+              </Link>
+            </DropdownItem>
             <DropdownItem>
               <Link
                 href="https://rollup-fortress.github.io/uncensored-book/"
